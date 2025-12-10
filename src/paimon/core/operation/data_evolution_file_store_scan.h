@@ -23,7 +23,7 @@
 #include <vector>
 
 #include "paimon/core/operation/file_store_scan.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/stats/simple_stats_evolution.h"
 #include "paimon/predicate/predicate.h"
 #include "paimon/result.h"
@@ -52,7 +52,7 @@ class DataEvolutionFileStoreScan : public FileStoreScan {
         const std::shared_ptr<SchemaManager>& schema_manager,
         const std::shared_ptr<ManifestList>& manifest_list,
         const std::shared_ptr<ManifestFile>& manifest_file,
-        const std::shared_ptr<TableSchema>& table_schema,
+        const std::shared_ptr<TableSchemaImpl>& table_schema,
         const std::shared_ptr<arrow::Schema>& arrow_schema,
         const std::shared_ptr<ScanFilter>& scan_filters, const CoreOptions& core_options,
         const std::shared_ptr<Executor>& executor, const std::shared_ptr<MemoryPool>& pool) {
@@ -78,7 +78,7 @@ class DataEvolutionFileStoreScan : public FileStoreScan {
                                const std::shared_ptr<SchemaManager>& schema_manager,
                                const std::shared_ptr<ManifestList>& manifest_list,
                                const std::shared_ptr<ManifestFile>& manifest_file,
-                               const std::shared_ptr<TableSchema>& table_schema,
+                               const std::shared_ptr<TableSchemaImpl>& table_schema,
                                const std::shared_ptr<arrow::Schema>& schema,
                                const CoreOptions& core_options,
                                const std::shared_ptr<Executor>& executor,
@@ -94,7 +94,8 @@ class DataEvolutionFileStoreScan : public FileStoreScan {
                                                const std::vector<Range>& row_ranges);
 
     static Result<std::pair<int64_t, SimpleStatsEvolution::EvolutionStats>> EvolutionStats(
-        const std::vector<ManifestEntry>& entries, const std::shared_ptr<TableSchema>& table_schema,
-        const std::function<Result<std::shared_ptr<TableSchema>>(int64_t)>& schema_fetcher);
+        const std::vector<ManifestEntry>& entries,
+        const std::shared_ptr<TableSchemaImpl>& table_schema,
+        const std::function<Result<std::shared_ptr<TableSchemaImpl>>(int64_t)>& schema_fetcher);
 };
 }  // namespace paimon

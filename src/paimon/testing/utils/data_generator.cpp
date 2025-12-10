@@ -34,7 +34,7 @@
 #include "paimon/common/data/binary_string.h"
 #include "paimon/common/types/row_kind.h"
 #include "paimon/common/utils/arrow/status_utils.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/utils/file_store_path_factory.h"
 
 namespace arrow {
@@ -47,7 +47,7 @@ class MemoryPool;
 
 namespace paimon::test {
 
-DataGenerator::DataGenerator(const std::shared_ptr<TableSchema>& table_schema,
+DataGenerator::DataGenerator(const std::shared_ptr<TableSchemaImpl>& table_schema,
                              const std::shared_ptr<MemoryPool>& memory_pool)
     : table_schema_(table_schema), memory_pool_(memory_pool) {
     assert(table_schema->Id() == 0);

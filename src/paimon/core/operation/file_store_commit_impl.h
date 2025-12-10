@@ -57,7 +57,7 @@ class ManifestList;
 class ManifestFileMeta;
 class SnapshotManager;
 class SchemaManager;
-class TableSchema;
+class TableSchemaImpl;
 class BinaryRowPartitionComputer;
 class CommitMessage;
 class Executor;
@@ -79,7 +79,7 @@ class FileStoreCommitImpl : public FileStoreCommit {
                         std::unique_ptr<BinaryRowPartitionComputer> partition_computer,
                         const std::shared_ptr<SnapshotManager>& snapshot_manager,
                         bool ignore_empty_commit, bool use_rest_catalog_commit,
-                        const std::shared_ptr<TableSchema>& table_schema,
+                        const std::shared_ptr<TableSchemaImpl>& table_schema,
                         const std::shared_ptr<ManifestFile>& manifest_file,
                         const std::shared_ptr<ManifestList>& manifest_list,
                         const std::shared_ptr<IndexManifestFile>& index_manifest_file,
@@ -206,7 +206,7 @@ class FileStoreCommitImpl : public FileStoreCommit {
     std::shared_ptr<SnapshotCommit> snapshot_commit_;
     bool ignore_empty_commit_ = true;
     int32_t num_bucket_ = 0;
-    std::shared_ptr<TableSchema> table_schema_;
+    std::shared_ptr<TableSchemaImpl> table_schema_;
 
     std::shared_ptr<ManifestFile> manifest_file_;
     std::shared_ptr<ManifestList> manifest_list_;

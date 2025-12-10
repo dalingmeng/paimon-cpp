@@ -21,7 +21,7 @@
 #include "arrow/api.h"
 #include "gtest/gtest.h"
 #include "paimon/common/data/blob_utils.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/defs.h"
 #include "paimon/result.h"
 #include "paimon/testing/utils/testharness.h"
@@ -39,8 +39,8 @@ TEST(SchemaValidationTest, TestSimple) {
     std::map<std::string, std::string> options = {{Options::BUCKET, "2"},
                                                   {Options::BUCKET_KEY, "f0"}};
     ASSERT_OK_AND_ASSIGN(
-        std::shared_ptr<TableSchema> table_schema,
-        TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        std::shared_ptr<TableSchemaImpl> table_schema,
+        TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
     ASSERT_OK(SchemaValidation::ValidateTableSchema(*table_schema));
 }
 
@@ -58,8 +58,8 @@ TEST(SchemaValidationTest, TestRowTracking) {
         {Options::DATA_EVOLUTION_ENABLED, "true"},
     };
     ASSERT_OK_AND_ASSIGN(
-        std::shared_ptr<TableSchema> table_schema,
-        TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        std::shared_ptr<TableSchemaImpl> table_schema,
+        TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
     ASSERT_OK(SchemaValidation::ValidateTableSchema(*table_schema));
 }
 
@@ -79,9 +79,9 @@ TEST(SchemaValidationTest, TestWithBlobField) {
             {Options::ROW_TRACKING_ENABLED, "true"},
             {Options::DATA_EVOLUTION_ENABLED, "true"},
         };
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_OK(SchemaValidation::ValidateTableSchema(*table_schema));
     }
     {
@@ -94,9 +94,9 @@ TEST(SchemaValidationTest, TestWithBlobField) {
             {Options::ROW_TRACKING_ENABLED, "true"},
             {Options::DATA_EVOLUTION_ENABLED, "false"},
         };
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(
             SchemaValidation::ValidateTableSchema(*table_schema),
             "Data evolution config must be enabled for table with BLOB type column.");
@@ -111,9 +111,9 @@ TEST(SchemaValidationTest, TestWithBlobField) {
             {Options::ROW_TRACKING_ENABLED, "true"},
             {Options::DATA_EVOLUTION_ENABLED, "true"},
         };
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "Table with BLOB type column only supports one BLOB column.");
     }
@@ -127,9 +127,9 @@ TEST(SchemaValidationTest, TestWithBlobField) {
             {Options::ROW_TRACKING_ENABLED, "true"},
             {Options::DATA_EVOLUTION_ENABLED, "true"},
         };
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "Table with BLOB type column must have other normal columns.");
     }
@@ -148,9 +148,9 @@ TEST(SchemaValidationTest, TestDuplicateField) {
     {
         // duplicate primary keys
         std::vector<std::string> dup_primary_keys = {"f0", "f1", "f1"};
-        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> table_schema,
-                             TableSchema::Create(/*schema_id=*/0, schema, partition_keys,
-                                                 dup_primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     dup_primary_keys, options));
         ASSERT_NOK_WITH_MSG(
             SchemaValidation::ValidateTableSchema(*table_schema),
             "primary key [f0, f1, f1] must not contain duplicate fields. Found: [f1]");
@@ -158,9 +158,9 @@ TEST(SchemaValidationTest, TestDuplicateField) {
     {
         // duplicate partition keys
         std::vector<std::string> dup_partition_keys = {"f1", "f1"};
-        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> table_schema,
-                             TableSchema::Create(/*schema_id=*/0, schema, dup_partition_keys,
-                                                 primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, dup_partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(
             SchemaValidation::ValidateTableSchema(*table_schema),
             "partition key [f1, f1] must not contain duplicate fields. Found: [f1]");
@@ -169,9 +169,9 @@ TEST(SchemaValidationTest, TestDuplicateField) {
         // duplicate bucket keys
         std::map<std::string, std::string> dup_options = {{Options::BUCKET, "2"},
                                                           {Options::BUCKET_KEY, "f0,f0"}};
-        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> table_schema,
-                             TableSchema::Create(/*schema_id=*/0, schema, partition_keys,
-                                                 primary_keys, dup_options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, dup_options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "bucket key [f0, f0] must not contain duplicate fields. Found: [f0]");
     }
@@ -190,9 +190,9 @@ TEST(SchemaValidationTest, TestNonExistField) {
     {
         // non-exist primary keys
         std::vector<std::string> non_exist_primary_keys = {"f0", "f1", "non-exist"};
-        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> table_schema,
-                             TableSchema::Create(/*schema_id=*/0, schema, partition_keys,
-                                                 non_exist_primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     non_exist_primary_keys, options));
         ASSERT_NOK_WITH_MSG(
             SchemaValidation::ValidateTableSchema(*table_schema),
             R"(Table column ["f0", "f1", "f2"] should include all primary key constraint ["f0", "f1", "non-exist"])");
@@ -200,9 +200,10 @@ TEST(SchemaValidationTest, TestNonExistField) {
     {
         // non-exist partition keys
         std::vector<std::string> non_exist_partition_keys = {"f1", "non-exist"};
-        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> table_schema,
-                             TableSchema::Create(/*schema_id=*/0, schema, non_exist_partition_keys,
-                                                 primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(
+            std::shared_ptr<TableSchemaImpl> table_schema,
+            TableSchemaImpl::Create(/*schema_id=*/0, schema, non_exist_partition_keys, primary_keys,
+                                    options));
         ASSERT_NOK_WITH_MSG(
             SchemaValidation::ValidateTableSchema(*table_schema),
             R"(Table column ["f0", "f1", "f2"] should include all partition fields ["f1", "non-exist"])");
@@ -221,8 +222,8 @@ TEST(SchemaValidationTest, NonPrimitivePrimaryKeyList) {
     std::map<std::string, std::string> options = {{Options::BUCKET, "2"},
                                                   {Options::BUCKET_KEY, "f0"}};
     ASSERT_OK_AND_ASSIGN(
-        std::shared_ptr<TableSchema> table_schema,
-        TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        std::shared_ptr<TableSchemaImpl> table_schema,
+        TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
     ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                         "field f0 is unsupported");
 }
@@ -238,8 +239,8 @@ TEST(SchemaValidationTest, NonPrimitivePrimaryKeyMap) {
     std::map<std::string, std::string> options = {{Options::BUCKET, "2"},
                                                   {Options::BUCKET_KEY, "f0"}};
     ASSERT_OK_AND_ASSIGN(
-        std::shared_ptr<TableSchema> table_schema,
-        TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        std::shared_ptr<TableSchemaImpl> table_schema,
+        TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
     ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                         "field f0 is unsupported");
 }
@@ -257,8 +258,8 @@ TEST(SchemaValidationTest, NonPrimitivePartitionKeyStruct) {
     std::map<std::string, std::string> options = {{Options::BUCKET, "2"},
                                                   {Options::BUCKET_KEY, "f0"}};
     ASSERT_OK_AND_ASSIGN(
-        std::shared_ptr<TableSchema> table_schema,
-        TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        std::shared_ptr<TableSchemaImpl> table_schema,
+        TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
     ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                         "field f1 is unsupported");
 }
@@ -272,8 +273,8 @@ TEST(SchemaValidationTest, TestComplexPartitionKey) {
     std::vector<std::string> primary_keys = {"f0", "f1"};
     std::vector<std::string> partition_keys = {"f1"};
     ASSERT_OK_AND_ASSIGN(
-        std::shared_ptr<TableSchema> table_schema,
-        TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, {}));
+        std::shared_ptr<TableSchemaImpl> table_schema,
+        TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, {}));
     ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                         "partition field f1 is unsupported");
 }
@@ -286,8 +287,8 @@ TEST(SchemaValidationTest, TestComplexPartitionKeyWithBlob) {
     auto schema = arrow::schema(fields);
     std::vector<std::string> partition_keys = {"f1"};
     ASSERT_OK_AND_ASSIGN(
-        std::shared_ptr<TableSchema> table_schema,
-        TableSchema::Create(/*schema_id=*/0, schema, partition_keys, /*primary_keys=*/{}, {}));
+        std::shared_ptr<TableSchemaImpl> table_schema,
+        TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys, /*primary_keys=*/{}, {}));
     ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                         "partition field f1 is unsupported");
 }
@@ -301,8 +302,8 @@ TEST(SchemaValidationTest, TestDateTypePartitionKey) {
     std::vector<std::string> primary_keys = {"f0", "f1"};
     std::vector<std::string> partition_keys = {"f1"};
     ASSERT_OK_AND_ASSIGN(
-        std::shared_ptr<TableSchema> table_schema,
-        TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, {}));
+        std::shared_ptr<TableSchemaImpl> table_schema,
+        TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, {}));
     ASSERT_OK(SchemaValidation::ValidateTableSchema(*table_schema));
 }
 
@@ -317,18 +318,18 @@ TEST(SchemaValidationTest, ValidateFieldsPrefix) {
     {
         std::map<std::string, std::string> options = {
             {Options::BUCKET, "2"}, {Options::BUCKET_KEY, "f0"}, {"fields.f0,f1,f3", "some_value"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "f3 can not be found in table schema.");
     }
     {
         std::map<std::string, std::string> options = {
             {Options::BUCKET, "2"}, {Options::BUCKET_KEY, "f0"}, {"fields.f0,f1,f2", "some_value"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_OK(SchemaValidation::ValidateTableSchema(*table_schema));
     }
     {
@@ -336,17 +337,17 @@ TEST(SchemaValidationTest, ValidateFieldsPrefix) {
             {Options::BUCKET, "2"},
             {Options::BUCKET_KEY, "f0"},
             {Options::FIELDS_DEFAULT_AGG_FUNC, "some_value"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_OK(SchemaValidation::ValidateTableSchema(*table_schema));
     }
     {
         std::map<std::string, std::string> options = {
             {Options::BUCKET, "2"}, {Options::BUCKET_KEY, "f0"}, {"fields.", "f1"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "invalid options key fields.");
     }
@@ -363,9 +364,9 @@ TEST(SchemaValidationTest, ValidateBucket) {
         std::vector<std::string> partition_keys = {"f1"};
         std::map<std::string, std::string> options = {{Options::BUCKET, "-1"},
                                                       {Options::BUCKET_KEY, "f0"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "please specify a bucket number.");
     }
@@ -374,9 +375,9 @@ TEST(SchemaValidationTest, ValidateBucket) {
         std::vector<std::string> partition_keys = {"f1"};
         std::map<std::string, std::string> options = {{Options::BUCKET, "0"},
                                                       {Options::BUCKET_KEY, "f0"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "The number of buckets needs to be greater than 0.");
     }
@@ -385,9 +386,9 @@ TEST(SchemaValidationTest, ValidateBucket) {
         std::vector<std::string> partition_keys = {"f2"};
         std::map<std::string, std::string> options = {{Options::BUCKET, "2"},
                                                       {Options::BUCKET_KEY, "f0"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(
             SchemaValidation::ValidateTableSchema(*table_schema),
             "You should use dynamic bucket (bucket = -1) mode in cross partition update case");
@@ -396,20 +397,20 @@ TEST(SchemaValidationTest, ValidateBucket) {
         std::vector<std::string> primary_keys = {};
         std::vector<std::string> partition_keys = {"f2"};
         std::map<std::string, std::string> options = {{Options::BUCKET, "2"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "You should define a 'bucket-key' for bucketed append mode");
     }
     {
         std::vector<std::string> partition_keys = {"f2"};
         std::map<std::string, std::string> options = {{"full-compaction.delta-commits", "2"}};
-        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> table_schema,
-                             TableSchema::Create(/*schema_id=*/0, schema, partition_keys,
-                                                 /*primary_keys=*/{}, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     /*primary_keys=*/{}, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
-                            "AppendOnlyTable of unware or dynamic bucket does not support "
+                            "AppendOnlyTable of unaware or dynamic bucket does not support "
                             "'full-compaction.delta-commits");
     }
     {
@@ -418,9 +419,10 @@ TEST(SchemaValidationTest, ValidateBucket) {
         auto new_schema = arrow::schema(new_fields);
         std::map<std::string, std::string> options = {{Options::BUCKET, "2"},
                                                       {Options::BUCKET_KEY, "f3"}};
-        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> table_schema,
-                             TableSchema::Create(/*schema_id=*/0, new_schema, /*partition_keys=*/{},
-                                                 /*primary_keys=*/{}, options));
+        ASSERT_OK_AND_ASSIGN(
+            std::shared_ptr<TableSchemaImpl> table_schema,
+            TableSchemaImpl::Create(/*schema_id=*/0, new_schema, /*partition_keys=*/{},
+                                    /*primary_keys=*/{}, options));
         ASSERT_NOK_WITH_MSG(
             SchemaValidation::ValidateTableSchema(*table_schema),
             "Nested type cannot be in bucket-key, in your table these keys are: f3");
@@ -441,9 +443,9 @@ TEST(SchemaValidationTest, ValidateDeletionVector) {
             {Options::BUCKET_KEY, "f0"},
             {Options::DELETION_VECTORS_ENABLED, "true"},
             {Options::CHANGELOG_PRODUCER, "full-compaction"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "Deletion vectors mode is only supported for NONE/INPUT/LOOKUP "
                             "changelog producer now.");
@@ -453,9 +455,9 @@ TEST(SchemaValidationTest, ValidateDeletionVector) {
                                                       {Options::BUCKET_KEY, "f0"},
                                                       {Options::DELETION_VECTORS_ENABLED, "true"},
                                                       {Options::MERGE_ENGINE, "first-row"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "First row merge engine does not need deletion vectors because there "
                             "is no deletion of old data in this merge engine.");
@@ -474,18 +476,18 @@ TEST(SchemaValidationTest, ValidateSequenceField) {
         std::map<std::string, std::string> options = {{Options::BUCKET, "2"},
                                                       {Options::BUCKET_KEY, "f0"},
                                                       {Options::SEQUENCE_FIELD, "f0,f1,f2"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_OK(SchemaValidation::ValidateTableSchema(*table_schema));
     }
     {
         std::map<std::string, std::string> options = {{Options::BUCKET, "2"},
                                                       {Options::BUCKET_KEY, "f0"},
                                                       {Options::SEQUENCE_FIELD, "f0,f1,f3"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "cannot be found in table schema.");
     }
@@ -494,18 +496,19 @@ TEST(SchemaValidationTest, ValidateSequenceField) {
                                                       {Options::BUCKET_KEY, "f0"},
                                                       {Options::SEQUENCE_FIELD, "f0,f1,f2"},
                                                       {Options::MERGE_ENGINE, "first-row"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "Do not support using sequence field on FIRST_ROW merge engine.");
     }
     {
         std::map<std::string, std::string> options = {{Options::BUCKET, "-1"},
                                                       {Options::SEQUENCE_FIELD, "f0,f1,f2"}};
-        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> table_schema,
-                             TableSchema::Create(/*schema_id=*/0, schema, /*partition_keys=*/{"f2"},
-                                                 /*primary_keys=*/{"f0", "f1"}, options));
+        ASSERT_OK_AND_ASSIGN(
+            std::shared_ptr<TableSchemaImpl> table_schema,
+            TableSchemaImpl::Create(/*schema_id=*/0, schema, /*partition_keys=*/{"f2"},
+                                    /*primary_keys=*/{"f0", "f1"}, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "You cannot use sequence.field in cross partition update case (Primary "
                             "key constraint 'f0, f1'  not including all partition fields 'f2').");
@@ -524,9 +527,9 @@ TEST(SchemaValidationTest, ValidateSequenceGroup) {
         std::map<std::string, std::string> options = {{Options::BUCKET, "2"},
                                                       {Options::BUCKET_KEY, "f0"},
                                                       {"fields.f0,f1.sequence-group", "f2"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_OK(SchemaValidation::ValidateTableSchema(*table_schema));
     }
     {
@@ -535,9 +538,9 @@ TEST(SchemaValidationTest, ValidateSequenceGroup) {
         std::map<std::string, std::string> options = {{Options::BUCKET, "2"},
                                                       {Options::BUCKET_KEY, "f0"},
                                                       {"fields.f0,f3.sequence-group", "f2"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "Field f3 can not be found in table schema.");
     }
@@ -547,9 +550,9 @@ TEST(SchemaValidationTest, ValidateSequenceGroup) {
         std::map<std::string, std::string> options = {{Options::BUCKET, "2"},
                                                       {Options::BUCKET_KEY, "f0"},
                                                       {"fields.f0,f1.sequence-group", "f3"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "Field f3 can not be found in table schema.");
     }
@@ -560,9 +563,9 @@ TEST(SchemaValidationTest, ValidateSequenceGroup) {
                                                       {Options::BUCKET_KEY, "f0"},
                                                       {"fields.f0,f1.sequence-group", "f0,f1"},
                                                       {"fields.f2.sequence-group", "f0,f1"}};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "defined repeatedly by multiple groups");
     }
@@ -575,9 +578,9 @@ TEST(SchemaValidationTest, ValidateSequenceGroup) {
             {"fields.f0,f1.sequence-group", "f2"},
             {"fields.f0.aggregate-function", "min"},
         };
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys,
+                                                     primary_keys, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "Should not define aggregation function on sequence group");
     }
@@ -591,9 +594,9 @@ TEST(SchemaValidationTest, ValidateInvalidConfiguration) {
     auto schema = arrow::schema(fields);
     {
         std::map<std::string, std::string> options = {{Options::CHANGELOG_PRODUCER, "input"}};
-        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> table_schema,
-                             TableSchema::Create(/*schema_id=*/0, schema, /*partition_keys=*/{},
-                                                 /*primary_keys=*/{}, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, /*partition_keys=*/{},
+                                                     /*primary_keys=*/{}, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "Can not set changelog-producer on table without primary keys, please "
                             "define primary keys.");
@@ -604,9 +607,9 @@ TEST(SchemaValidationTest, ValidateInvalidConfiguration) {
         invalid_fields.push_back(invalid_field);
         auto invalid_schema = arrow::schema(invalid_fields);
         ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, invalid_schema, /*partition_keys=*/{},
-                                /*primary_keys=*/{}, /*options=*/{}));
+            std::shared_ptr<TableSchemaImpl> table_schema,
+            TableSchemaImpl::Create(/*schema_id=*/0, invalid_schema, /*partition_keys=*/{},
+                                    /*primary_keys=*/{}, /*options=*/{}));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "field name '_SEQUENCE_NUMBER' in schema cannot be special field.");
     }
@@ -616,18 +619,18 @@ TEST(SchemaValidationTest, ValidateInvalidConfiguration) {
         invalid_fields.push_back(invalid_field);
         auto invalid_schema = arrow::schema(invalid_fields);
         ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, invalid_schema, /*partition_keys=*/{},
-                                /*primary_keys=*/{}, /*options=*/{}));
+            std::shared_ptr<TableSchemaImpl> table_schema,
+            TableSchemaImpl::Create(/*schema_id=*/0, invalid_schema, /*partition_keys=*/{},
+                                    /*primary_keys=*/{}, /*options=*/{}));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "field name '_KEY_a' in schema cannot start with '_KEY_'");
     }
     {
         std::map<std::string, std::string> options = {{Options::CHANGELOG_PRODUCER, "input"},
                                                       {Options::MERGE_ENGINE, "first-row"}};
-        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> table_schema,
-                             TableSchema::Create(/*schema_id=*/0, schema, /*partition_keys=*/{},
-                                                 /*primary_keys=*/{"f0"}, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, /*partition_keys=*/{},
+                                                     /*primary_keys=*/{"f0"}, options));
         ASSERT_NOK_WITH_MSG(
             SchemaValidation::ValidateTableSchema(*table_schema),
             "Only support 'none' and 'lookup' changelog-producer on FIRST_ROW merge engine");
@@ -637,9 +640,9 @@ TEST(SchemaValidationTest, ValidateInvalidConfiguration) {
         std::map<std::string, std::string> options = {{Options::ROW_TRACKING_ENABLED, "true"},
                                                       {Options::BUCKET, "1"},
                                                       {Options::BUCKET_KEY, "f0"}};
-        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> table_schema,
-                             TableSchema::Create(/*schema_id=*/0, schema, /*partition_keys=*/{},
-                                                 /*primary_keys=*/{}, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, /*partition_keys=*/{},
+                                                     /*primary_keys=*/{}, options));
         ASSERT_NOK_WITH_MSG(
             SchemaValidation::ValidateTableSchema(*table_schema),
             "Cannot define bucket for row tracking table, it only support bucket = -1");
@@ -647,17 +650,17 @@ TEST(SchemaValidationTest, ValidateInvalidConfiguration) {
     {
         std::map<std::string, std::string> options = {{Options::ROW_TRACKING_ENABLED, "true"},
                                                       {Options::BUCKET, "-1"}};
-        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> table_schema,
-                             TableSchema::Create(/*schema_id=*/0, schema, /*partition_keys=*/{},
-                                                 /*primary_keys=*/{"f0"}, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, /*partition_keys=*/{},
+                                                     /*primary_keys=*/{"f0"}, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "Cannot define primary key for row tracking table");
     }
     {
         std::map<std::string, std::string> options = {{Options::DATA_EVOLUTION_ENABLED, "true"}};
-        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> table_schema,
-                             TableSchema::Create(/*schema_id=*/0, schema, /*partition_keys=*/{},
-                                                 /*primary_keys=*/{}, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, /*partition_keys=*/{},
+                                                     /*primary_keys=*/{}, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "Data evolution config must enabled with row-tracking.enabled");
     }
@@ -665,9 +668,9 @@ TEST(SchemaValidationTest, ValidateInvalidConfiguration) {
         std::map<std::string, std::string> options = {{Options::ROW_TRACKING_ENABLED, "true"},
                                                       {Options::DATA_EVOLUTION_ENABLED, "true"},
                                                       {Options::DELETION_VECTORS_ENABLED, "true"}};
-        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> table_schema,
-                             TableSchema::Create(/*schema_id=*/0, schema, /*partition_keys=*/{},
-                                                 /*primary_keys=*/{}, options));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(/*schema_id=*/0, schema, /*partition_keys=*/{},
+                                                     /*primary_keys=*/{}, options));
         ASSERT_NOK_WITH_MSG(SchemaValidation::ValidateTableSchema(*table_schema),
                             "Data evolution config must disabled with deletion-vectors.enabled");
     }

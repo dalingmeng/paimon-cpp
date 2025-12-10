@@ -64,7 +64,7 @@ class MemoryPool;
 class ScanFilter;
 class SchemaManager;
 class SnapshotManager;
-class TableSchema;
+class TableSchemaImpl;
 
 /// Scan operation which produces a plan.
 class FileStoreScan {
@@ -74,7 +74,7 @@ class FileStoreScan {
                   const std::shared_ptr<SchemaManager>& schema_manager,
                   const std::shared_ptr<ManifestList>& manifest_list,
                   const std::shared_ptr<ManifestFile>& manifest_file,
-                  const std::shared_ptr<TableSchema>& table_schema,
+                  const std::shared_ptr<TableSchemaImpl>& table_schema,
                   const std::shared_ptr<arrow::Schema>& schema, const CoreOptions& core_options,
                   const std::shared_ptr<Executor>& executor,
                   const std::shared_ptr<MemoryPool>& pool)
@@ -224,7 +224,7 @@ class FileStoreScan {
     std::shared_ptr<SchemaManager> schema_manager_;
     std::shared_ptr<PredicateFilter> predicates_;
     std::shared_ptr<arrow::Schema> schema_;
-    std::shared_ptr<TableSchema> table_schema_;
+    std::shared_ptr<TableSchemaImpl> table_schema_;
     std::vector<Range> row_ranges_;
 
     ScanMode scan_mode_ = ScanMode::ALL;

@@ -54,7 +54,7 @@
 #include "paimon/core/options/merge_engine.h"
 #include "paimon/core/options/sort_engine.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/table/bucket_mode.h"
 #include "paimon/core/table/source/data_split_impl.h"
 #include "paimon/core/utils/fields_comparator.h"
@@ -240,7 +240,7 @@ MergeFileSplitRead::MergeFileSplitRead(
       predicate_for_keys_(predicate_for_keys) {}
 
 Status MergeFileSplitRead::GenerateKeyValueReadSchema(
-    const TableSchema& table_schema, const CoreOptions& options,
+    const TableSchemaImpl& table_schema, const CoreOptions& options,
     const std::shared_ptr<arrow::Schema>& raw_read_schema,
     std::shared_ptr<arrow::Schema>* value_schema, std::shared_ptr<arrow::Schema>* read_schema,
     std::shared_ptr<FieldsComparator>* key_comparator,
@@ -315,7 +315,7 @@ Status MergeFileSplitRead::SplitKeyAndNonKeyField(
     return Status::OK();
 }
 
-Status MergeFileSplitRead::CompleteSequenceField(const TableSchema& table_schema,
+Status MergeFileSplitRead::CompleteSequenceField(const TableSchemaImpl& table_schema,
                                                  const CoreOptions& options,
                                                  std::vector<DataField>* non_key_fields) {
     auto sequence_field_names = options.GetSequenceField();
@@ -340,7 +340,7 @@ Status MergeFileSplitRead::CompleteSequenceField(const TableSchema& table_schema
 }
 
 Result<std::shared_ptr<Predicate>> MergeFileSplitRead::GenerateKeyPredicates(
-    const std::shared_ptr<Predicate>& predicate, const TableSchema& table_schema) {
+    const std::shared_ptr<Predicate>& predicate, const TableSchemaImpl& table_schema) {
     // extract predicates only contain trimmed key fields
     if (!predicate) {
         return std::shared_ptr<Predicate>();

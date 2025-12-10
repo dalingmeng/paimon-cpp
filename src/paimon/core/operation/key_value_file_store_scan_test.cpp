@@ -32,7 +32,7 @@
 #include "paimon/core/manifest/manifest_file.h"
 #include "paimon/core/manifest/manifest_list.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/snapshot.h"
 #include "paimon/core/stats/simple_stats.h"
 #include "paimon/core/utils/field_mapping.h"
@@ -69,7 +69,7 @@ class KeyValueFileStoreScanTest : public testing::Test {
         PAIMON_ASSIGN_OR_RAISE(CoreOptions core_options, CoreOptions::FromMap(options_map));
         auto fs = core_options.GetFileSystem();
         auto schema_manager = std::make_shared<SchemaManager>(fs, table_path);
-        PAIMON_ASSIGN_OR_RAISE(std::shared_ptr<TableSchema> table_schema,
+        PAIMON_ASSIGN_OR_RAISE(std::shared_ptr<TableSchemaImpl> table_schema,
                                schema_manager->ReadSchema(table_schema_id));
 
         auto arrow_schema = DataField::ConvertDataFieldsToArrowSchema(table_schema->Fields());

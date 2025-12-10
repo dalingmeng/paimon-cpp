@@ -36,7 +36,7 @@ TEST(SchemaManagerTest, TestSimple) {
               paimon::test::GetDataDir() +
                   "/orc/pk_table_with_alter_table.db/pk_table_with_alter_table/schema/schema-0");
 
-    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> ret, manager.ReadSchema(/*schema_id=*/1));
+    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> ret, manager.ReadSchema(/*schema_id=*/1));
     std::string schema_json = R"({
         "version" : 3,
         "id" : 1,
@@ -86,7 +86,7 @@ TEST(SchemaManagerTest, TestSimple) {
         },
         "timeMillis" : 1730516111087
     })";
-    ASSERT_OK_AND_ASSIGN(auto expected_schema, TableSchema::CreateFromJson(schema_json));
+    ASSERT_OK_AND_ASSIGN(auto expected_schema, TableSchemaImpl::CreateFromJson(schema_json));
     ASSERT_EQ(*ret, *expected_schema);
     ASSERT_FALSE(manager.schema_cache_.empty());
     ASSERT_EQ(*manager.ReadSchema(/*schema_id=*/1).value(), *expected_schema);
@@ -97,7 +97,7 @@ TEST(SchemaManagerTest, TestNonExistTable) {
     auto fs = std::make_shared<LocalFileSystem>();
     std::string table_root = paimon::test::GetDataDir() + "/non-exist.db/non-exist/";
     SchemaManager manager(fs, table_root);
-    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchema>> latest, manager.Latest());
+    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchemaImpl>> latest, manager.Latest());
     ASSERT_EQ(latest, std::nullopt);
     auto ret = manager.ReadSchema(/*schema_id=*/100);
     ASSERT_FALSE(ret.ok());
@@ -162,11 +162,11 @@ TEST(SchemaManagerTest, TestCreateTable) {
                                                   {"commit.force-compact", "true"}};
 
     // Create table
-    ASSERT_OK_AND_ASSIGN([[maybe_unused]] std::unique_ptr<TableSchema> result,
+    ASSERT_OK_AND_ASSIGN([[maybe_unused]] std::unique_ptr<TableSchemaImpl> result,
                          manager.CreateTable(schema, partition_keys, primary_keys, options));
 
     // Verify schema was created
-    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchema>> latest_result,
+    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchemaImpl>> latest_result,
                          manager.Latest());
     ASSERT_TRUE(latest_result);
     auto created_schema = latest_result.value();

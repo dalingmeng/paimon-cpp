@@ -17,7 +17,7 @@
 #pragma once
 #include "paimon/core/core_options.h"
 #include "paimon/core/manifest/index_manifest_entry.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/utils/file_store_path_factory.h"
 #include "paimon/core/utils/snapshot_manager.h"
 #include "paimon/global_index/global_index_scan.h"
@@ -26,7 +26,7 @@ namespace paimon {
 class GlobalIndexScanImpl : public GlobalIndexScan {
  public:
     GlobalIndexScanImpl(
-        const std::string& root_path, const std::shared_ptr<TableSchema>& table_schema,
+        const std::string& root_path, const std::shared_ptr<TableSchemaImpl>& table_schema,
         const std::optional<int64_t>& snapshot_id,
         const std::optional<std::vector<std::map<std::string, std::string>>>& partitions,
         const CoreOptions& options, const std::shared_ptr<MemoryPool>& pool);
@@ -43,7 +43,7 @@ class GlobalIndexScanImpl : public GlobalIndexScan {
     bool initialized_ = false;
     std::shared_ptr<MemoryPool> pool_;
     std::string root_path_;
-    std::shared_ptr<TableSchema> table_schema_;
+    std::shared_ptr<TableSchemaImpl> table_schema_;
     std::optional<int64_t> snapshot_id_;
     std::optional<std::vector<std::map<std::string, std::string>>> partitions_;
     CoreOptions options_;

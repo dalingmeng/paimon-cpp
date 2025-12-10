@@ -33,7 +33,7 @@
 #include "paimon/core/io/data_increment.h"
 #include "paimon/core/manifest/file_source.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/stats/simple_stats.h"
 #include "paimon/core/stats/simple_stats_converter.h"
 #include "paimon/core/table/sink/commit_message_impl.h"
@@ -46,15 +46,15 @@
 
 namespace paimon {
 namespace {
-Result<std::shared_ptr<TableSchema>> LoadTableSchema(const std::shared_ptr<FileSystem>& fs,
-                                                     const std::string& table_path) {
+Result<std::shared_ptr<TableSchemaImpl>> LoadTableSchema(const std::shared_ptr<FileSystem>& fs,
+                                                         const std::string& table_path) {
     SchemaManager schema_manager(fs, table_path);
-    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchema>> table_schema,
+    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchemaImpl>> table_schema,
                            schema_manager.Latest());
     if (table_schema == std::nullopt) {
         return Status::Invalid(fmt::format("load schema failed, no schema in {}", table_path));
     }
-    if (table_schema.value()->Id() != TableSchema::FIRST_SCHEMA_ID) {
+    if (table_schema.value()->Id() != TableSchemaImpl::FIRST_SCHEMA_ID) {
         return Status::NotImplemented("do not support schema evolution in migrate process");
     }
     return table_schema.value();
@@ -109,7 +109,7 @@ Result<std::unique_ptr<CommitMessage>> FileMetaUtils::GenerateCommitMessage(
     auto memory_pool = GetDefaultPool();
     // load table schema
     PAIMON_ASSIGN_OR_RAISE(CoreOptions tmp_options, CoreOptions::FromMap(options));
-    PAIMON_ASSIGN_OR_RAISE(std::shared_ptr<TableSchema> table_schema,
+    PAIMON_ASSIGN_OR_RAISE(std::shared_ptr<TableSchemaImpl> table_schema,
                            LoadTableSchema(tmp_options.GetFileSystem(), dst_table_path));
     if (!table_schema->PrimaryKeys().empty() || table_schema->NumBuckets() != -1) {
         return Status::Invalid("migrate only support append table with unaware-bucket");

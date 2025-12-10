@@ -28,7 +28,7 @@
 #include "paimon/common/data/blob_utils.h"
 #include "paimon/common/reader/data_evolution_array.h"
 #include "paimon/common/reader/data_evolution_row.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/stats/simple_stats_evolution.h"
 #include "paimon/memory/memory_pool.h"
 #include "paimon/testing/utils/binary_row_generator.h"
@@ -40,13 +40,13 @@ class DataEvolutionFileStoreScanTest : public ::testing::Test {
     void SetUp() override {}
     void TearDown() override {}
 
-    std::shared_ptr<TableSchema> CreateTableSchema(int64_t schema_id,
-                                                   const std::vector<DataField>& fields) const {
+    std::shared_ptr<TableSchemaImpl> CreateTableSchema(int64_t schema_id,
+                                                       const std::vector<DataField>& fields) const {
         EXPECT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::InitSchema(schema_id, fields, /*highest_field_id=*/fields.size(),
-                                    /*partition_keys=*/{},
-                                    /*primary_keys=*/{}, /*options=*/{}, /*time_millis=*/0));
+            std::shared_ptr<TableSchemaImpl> table_schema,
+            TableSchemaImpl::InitSchema(schema_id, fields, /*highest_field_id=*/fields.size(),
+                                        /*partition_keys=*/{},
+                                        /*primary_keys=*/{}, /*options=*/{}, /*time_millis=*/0));
         return table_schema;
     }
     ManifestEntry CreateManifestEntry(
@@ -101,8 +101,8 @@ TEST_F(DataEvolutionFileStoreScanTest, TestEvolutionStatsSingleFile) {
                                      DataField(1, arrow::field("f1", arrow::utf8()))};
     auto table_schema = CreateTableSchema(/*schema_id=*/0, fields);
 
-    std::function<Result<std::shared_ptr<TableSchema>>(int64_t)> schema_fetcher =
-        [&](int64_t schema_id) -> Result<std::shared_ptr<TableSchema>> {
+    std::function<Result<std::shared_ptr<TableSchemaImpl>>(int64_t)> schema_fetcher =
+        [&](int64_t schema_id) -> Result<std::shared_ptr<TableSchemaImpl>> {
         assert(schema_id == 0);
         return table_schema;
     };
@@ -147,14 +147,14 @@ TEST_F(DataEvolutionFileStoreScanTest, TestEvolutionStatsMultipleFiles) {
     auto table_schema0 = CreateTableSchema(/*schema_id=*/0, fields);
     auto table_schema1 = CreateTableSchema(/*schema_id=*/1, {fields[0], fields[2]});
 
-    std::function<Result<std::shared_ptr<TableSchema>>(int64_t)> schema_fetcher =
-        [&](int64_t schema_id) -> Result<std::shared_ptr<TableSchema>> {
+    std::function<Result<std::shared_ptr<TableSchemaImpl>>(int64_t)> schema_fetcher =
+        [&](int64_t schema_id) -> Result<std::shared_ptr<TableSchemaImpl>> {
         if (schema_id == 0) {
             return table_schema0;
         } else if (schema_id == 1) {
             return table_schema1;
         }
-        return std::shared_ptr<TableSchema>();
+        return std::shared_ptr<TableSchemaImpl>();
     };
 
     auto entry0 = CreateManifestEntry(
@@ -204,14 +204,14 @@ TEST_F(DataEvolutionFileStoreScanTest, TestEvolutionStatsWithSchemaEvolution) {
     auto table_schema0 = CreateTableSchema(/*schema_id=*/0, {fields[0], fields[1]});
     auto table_schema1 = CreateTableSchema(/*schema_id=*/1, fields);
 
-    std::function<Result<std::shared_ptr<TableSchema>>(int64_t)> schema_fetcher =
-        [&](int64_t schema_id) -> Result<std::shared_ptr<TableSchema>> {
+    std::function<Result<std::shared_ptr<TableSchemaImpl>>(int64_t)> schema_fetcher =
+        [&](int64_t schema_id) -> Result<std::shared_ptr<TableSchemaImpl>> {
         if (schema_id == 0) {
             return table_schema0;
         } else if (schema_id == 1) {
             return table_schema1;
         }
-        return std::shared_ptr<TableSchema>();
+        return std::shared_ptr<TableSchemaImpl>();
     };
 
     auto entry0 = CreateManifestEntry(
@@ -261,14 +261,14 @@ TEST_F(DataEvolutionFileStoreScanTest, TestEvolutionStatsWithWriteColsNotEqualTo
     auto table_schema0 = CreateTableSchema(/*schema_id=*/0, fields);
     auto table_schema1 = CreateTableSchema(/*schema_id=*/1, fields);
 
-    std::function<Result<std::shared_ptr<TableSchema>>(int64_t)> schema_fetcher =
-        [&](int64_t schema_id) -> Result<std::shared_ptr<TableSchema>> {
+    std::function<Result<std::shared_ptr<TableSchemaImpl>>(int64_t)> schema_fetcher =
+        [&](int64_t schema_id) -> Result<std::shared_ptr<TableSchemaImpl>> {
         if (schema_id == 0) {
             return table_schema0;
         } else if (schema_id == 1) {
             return table_schema1;
         }
-        return std::shared_ptr<TableSchema>();
+        return std::shared_ptr<TableSchemaImpl>();
     };
 
     auto entry0 = CreateManifestEntry(
@@ -326,14 +326,14 @@ TEST_F(DataEvolutionFileStoreScanTest, TestEvolutionStatsWithSchemaEvolutionRena
     };
     auto table_schema1 = CreateTableSchema(/*schema_id=*/1, fields1);
 
-    std::function<Result<std::shared_ptr<TableSchema>>(int64_t)> schema_fetcher =
-        [&](int64_t schema_id) -> Result<std::shared_ptr<TableSchema>> {
+    std::function<Result<std::shared_ptr<TableSchemaImpl>>(int64_t)> schema_fetcher =
+        [&](int64_t schema_id) -> Result<std::shared_ptr<TableSchemaImpl>> {
         if (schema_id == 0) {
             return table_schema0;
         } else if (schema_id == 1) {
             return table_schema1;
         }
-        return std::shared_ptr<TableSchema>();
+        return std::shared_ptr<TableSchemaImpl>();
     };
 
     auto entry0 = CreateManifestEntry(
@@ -401,14 +401,14 @@ TEST_F(DataEvolutionFileStoreScanTest, TestEvolutionStatsWithSchemaEvolutionUpda
 
     auto table_schema1 = CreateTableSchema(/*schema_id=*/1, fields1);
 
-    std::function<Result<std::shared_ptr<TableSchema>>(int64_t)> schema_fetcher =
-        [&](int64_t schema_id) -> Result<std::shared_ptr<TableSchema>> {
+    std::function<Result<std::shared_ptr<TableSchemaImpl>>(int64_t)> schema_fetcher =
+        [&](int64_t schema_id) -> Result<std::shared_ptr<TableSchemaImpl>> {
         if (schema_id == 0) {
             return table_schema0;
         } else if (schema_id == 1) {
             return table_schema1;
         }
-        return std::shared_ptr<TableSchema>();
+        return std::shared_ptr<TableSchemaImpl>();
     };
 
     auto entry0 = CreateManifestEntry(
@@ -463,8 +463,8 @@ TEST_F(DataEvolutionFileStoreScanTest, TestEvolutionStatsWithBlob) {
     };
     auto table_schema = CreateTableSchema(/*schema_id=*/0, fields);
 
-    std::function<Result<std::shared_ptr<TableSchema>>(int64_t)> schema_fetcher =
-        [&](int64_t schema_id) -> Result<std::shared_ptr<TableSchema>> {
+    std::function<Result<std::shared_ptr<TableSchemaImpl>>(int64_t)> schema_fetcher =
+        [&](int64_t schema_id) -> Result<std::shared_ptr<TableSchemaImpl>> {
         assert(schema_id == 0);
         return table_schema;
     };

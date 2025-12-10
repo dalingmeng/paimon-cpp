@@ -52,11 +52,11 @@ TEST(AbstractSplitReadTest, TestProjectFieldsForRowTrackingAndDataEvolution) {
         std::vector<DataField> fields = {DataField(0, arrow::field("name", arrow::utf8())),
                                          DataField(1, arrow::field("sex", arrow::utf8())),
                                          DataField(2, arrow::field("age", arrow::int32()))};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, DataField::ConvertDataFieldsToArrowSchema(fields),
-                                /*partition_keys=*/{},
-                                /*primary_keys=*/{}, /*options=*/{}));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(
+                                 /*schema_id=*/0, DataField::ConvertDataFieldsToArrowSchema(fields),
+                                 /*partition_keys=*/{},
+                                 /*primary_keys=*/{}, /*options=*/{}));
 
         {
             // test write_cols is std::nullopt
@@ -92,11 +92,11 @@ TEST(AbstractSplitReadTest, TestProjectFieldsForRowTrackingAndDataEvolution) {
                                          DataField(1, arrow::field("ds", arrow::utf8())),
                                          DataField(2, arrow::field("sex", arrow::utf8())),
                                          DataField(3, arrow::field("age", arrow::int32()))};
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<TableSchema> table_schema,
-            TableSchema::Create(/*schema_id=*/0, DataField::ConvertDataFieldsToArrowSchema(fields),
-                                /*partition_keys=*/{"ds"},
-                                /*primary_keys=*/{}, /*options=*/{}));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> table_schema,
+                             TableSchemaImpl::Create(
+                                 /*schema_id=*/0, DataField::ConvertDataFieldsToArrowSchema(fields),
+                                 /*partition_keys=*/{"ds"},
+                                 /*primary_keys=*/{}, /*options=*/{}));
 
         {
             // test write_cols is std::nullopt

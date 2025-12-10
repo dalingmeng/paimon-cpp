@@ -35,7 +35,7 @@
 #include "paimon/core/io/file_index_evaluator.h"
 #include "paimon/core/manifest/manifest_entry.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/stats/simple_stats_evolution.h"
 #include "paimon/core/stats/simple_stats_evolutions.h"
 #include "paimon/core/utils/field_mapping.h"
@@ -55,7 +55,7 @@ Result<std::unique_ptr<AppendOnlyFileStoreScan>> AppendOnlyFileStoreScan::Create
     const std::shared_ptr<SchemaManager>& schema_manager,
     const std::shared_ptr<ManifestList>& manifest_list,
     const std::shared_ptr<ManifestFile>& manifest_file,
-    const std::shared_ptr<TableSchema>& table_schema,
+    const std::shared_ptr<TableSchemaImpl>& table_schema,
     const std::shared_ptr<arrow::Schema>& arrow_schema,
     const std::shared_ptr<ScanFilter>& scan_filters, const CoreOptions& core_options,
     const std::shared_ptr<Executor>& executor, const std::shared_ptr<MemoryPool>& pool) {
@@ -72,9 +72,9 @@ AppendOnlyFileStoreScan::AppendOnlyFileStoreScan(
     const std::shared_ptr<SchemaManager>& schema_manager,
     const std::shared_ptr<ManifestList>& manifest_list,
     const std::shared_ptr<ManifestFile>& manifest_file,
-    const std::shared_ptr<TableSchema>& table_schema, const std::shared_ptr<arrow::Schema>& schema,
-    const CoreOptions& core_options, const std::shared_ptr<Executor>& executor,
-    const std::shared_ptr<MemoryPool>& pool)
+    const std::shared_ptr<TableSchemaImpl>& table_schema,
+    const std::shared_ptr<arrow::Schema>& schema, const CoreOptions& core_options,
+    const std::shared_ptr<Executor>& executor, const std::shared_ptr<MemoryPool>& pool)
     : FileStoreScan(snapshot_manager, schema_manager, manifest_list, manifest_file, table_schema,
                     schema, core_options, executor, pool) {
     evolutions_ = std::make_shared<SimpleStatsEvolutions>(table_schema, pool);
@@ -85,7 +85,7 @@ Result<bool> AppendOnlyFileStoreScan::FilterByStats(const ManifestEntry& entry) 
         return true;
     }
     const auto& meta = entry.File();
-    std::shared_ptr<TableSchema> data_schema = table_schema_;
+    std::shared_ptr<TableSchemaImpl> data_schema = table_schema_;
     std::shared_ptr<Predicate> trimmed_predicates = predicates_;
     int64_t data_schema_id = meta->schema_id;
     if (data_schema_id != table_schema_->Id()) {
@@ -136,7 +136,7 @@ Result<bool> AppendOnlyFileStoreScan::FilterByStats(const ManifestEntry& entry) 
 Result<bool> AppendOnlyFileStoreScan::TestFileIndex(
     const std::shared_ptr<DataFileMeta>& meta,
     const std::shared_ptr<SimpleStatsEvolution>& evolution,
-    const std::shared_ptr<TableSchema>& data_schema) const {
+    const std::shared_ptr<TableSchemaImpl>& data_schema) const {
     std::shared_ptr<Predicate> data_predicate = predicates_;
     if (data_schema->Id() != table_schema_->Id()) {
         PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<Predicate>> reconstruct_predicate,

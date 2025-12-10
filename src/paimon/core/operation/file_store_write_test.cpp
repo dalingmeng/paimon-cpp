@@ -31,7 +31,7 @@
 #include "paimon/common/utils/path_util.h"
 #include "paimon/core/operation/key_value_file_store_write.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/defs.h"
 #include "paimon/fs/local/local_file_system.h"
 #include "paimon/result.h"

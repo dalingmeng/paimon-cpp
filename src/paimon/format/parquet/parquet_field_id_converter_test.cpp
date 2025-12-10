@@ -24,7 +24,7 @@
 #include "arrow/api.h"
 #include "gtest/gtest.h"
 #include "paimon/common/types/data_field.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/status.h"
 #include "paimon/testing/utils/testharness.h"
 
@@ -130,8 +130,8 @@ TEST_F(ParquetFieldIdConverterTest, TestSimple) {
     auto schema = arrow::schema(fields);
     ASSERT_OK_AND_ASSIGN(
         auto table_schema,
-        TableSchema::Create(/*schema_id=*/0, schema, /*partition_keys=*/{}, /*primary_keys=*/{},
-                            /*options=*/{}));
+        TableSchemaImpl::Create(/*schema_id=*/0, schema, /*partition_keys=*/{}, /*primary_keys=*/{},
+                                /*options=*/{}));
     auto schema_with_field_id = DataField::ConvertDataFieldsToArrowSchema(table_schema->Fields());
     ASSERT_OK_AND_ASSIGN(auto new_schema,
                          ParquetFieldIdConverter::AddParquetIdsFromPaimonIds(schema_with_field_id));
@@ -187,8 +187,8 @@ TEST_F(ParquetFieldIdConverterTest, TestNestedType) {
     auto schema = arrow::schema(fields);
     ASSERT_OK_AND_ASSIGN(
         auto table_schema,
-        TableSchema::Create(/*schema_id=*/0, schema, /*partition_keys=*/{}, /*primary_keys=*/{},
-                            /*options=*/{}));
+        TableSchemaImpl::Create(/*schema_id=*/0, schema, /*partition_keys=*/{}, /*primary_keys=*/{},
+                                /*options=*/{}));
     auto schema_with_field_id = DataField::ConvertDataFieldsToArrowSchema(table_schema->Fields());
     ASSERT_OK_AND_ASSIGN(auto new_schema,
                          ParquetFieldIdConverter::AddParquetIdsFromPaimonIds(schema_with_field_id));

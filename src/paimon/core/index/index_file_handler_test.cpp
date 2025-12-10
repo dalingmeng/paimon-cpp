@@ -29,7 +29,7 @@
 #include "paimon/core/deletionvectors/deletion_vectors_index_file.h"
 #include "paimon/core/index/deletion_vector_meta.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/snapshot.h"
 #include "paimon/core/utils/file_store_path_factory.h"
 #include "paimon/core/utils/snapshot_manager.h"
@@ -49,7 +49,7 @@ class IndexFileHandlerTest : public testing::Test {
     Result<std::unique_ptr<IndexFileHandler>> CreateIndexFileHandler(
         const std::string& table_path, const CoreOptions& core_options) const {
         SchemaManager schema_manager(core_options.GetFileSystem(), table_path);
-        PAIMON_ASSIGN_OR_RAISE(std::shared_ptr<TableSchema> table_schema,
+        PAIMON_ASSIGN_OR_RAISE(std::shared_ptr<TableSchemaImpl> table_schema,
                                schema_manager.ReadSchema(/*schema_id=*/0));
         auto schema = DataField::ConvertDataFieldsToArrowSchema(table_schema->Fields());
         PAIMON_ASSIGN_OR_RAISE(std::vector<std::string> external_paths,

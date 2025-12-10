@@ -23,7 +23,7 @@
 #include "paimon/core/global_index/global_index_file_manager.h"
 #include "paimon/core/io/data_increment.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/table/sink/commit_message_impl.h"
 #include "paimon/core/table/source/data_split_impl.h"
 #include "paimon/core/utils/file_store_path_factory.h"
@@ -34,7 +34,7 @@
 namespace paimon {
 namespace {
 Result<std::shared_ptr<GlobalIndexFileManager>> CreateGlobalIndexFileManager(
-    const std::string& table_path, const std::shared_ptr<TableSchema>& table_schema,
+    const std::string& table_path, const std::shared_ptr<TableSchemaImpl>& table_schema,
     const CoreOptions& core_options, const std::shared_ptr<MemoryPool>& pool) {
     auto all_arrow_schema = DataField::ConvertDataFieldsToArrowSchema(table_schema->Fields());
     PAIMON_ASSIGN_OR_RAISE(std::vector<std::string> external_paths,
@@ -159,7 +159,7 @@ Result<std::shared_ptr<CommitMessage>> RowRangeGlobalIndexWriter::WriteIndex(
     // load schema
     PAIMON_ASSIGN_OR_RAISE(CoreOptions tmp_options, CoreOptions::FromMap(options));
     SchemaManager schema_manager(tmp_options.GetFileSystem(), table_path);
-    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchema>> latest_table_schema,
+    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchemaImpl>> latest_table_schema,
                            schema_manager.Latest());
     if (latest_table_schema == std::nullopt) {
         return Status::Invalid("not found latest schema");

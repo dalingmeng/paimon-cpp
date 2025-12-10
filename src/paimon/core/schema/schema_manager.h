@@ -23,9 +23,10 @@
 #include <string>
 #include <vector>
 
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/fs/file_system.h"
 #include "paimon/result.h"
+#include "paimon/schema/table_schema.h"
 
 namespace arrow {
 class Schema;
@@ -43,9 +44,9 @@ class SchemaManager {
                   const std::string& branch);
 
     /// Read schema for schema id. Find schema in cache first.
-    Result<std::shared_ptr<TableSchema>> ReadSchema(int64_t schema_id) const;
-    Result<std::optional<std::shared_ptr<TableSchema>>> Latest() const;
-    Result<std::unique_ptr<TableSchema>> CreateTable(
+    Result<std::shared_ptr<TableSchemaImpl>> ReadSchema(int64_t schema_id) const;
+    Result<std::optional<std::shared_ptr<TableSchemaImpl>>> Latest() const;
+    Result<std::unique_ptr<TableSchemaImpl>> CreateTable(
         const std::shared_ptr<arrow::Schema>& schema,
         const std::vector<std::string>& partition_keys,
         const std::vector<std::string>& primary_keys,
@@ -66,7 +67,7 @@ class SchemaManager {
     std::shared_ptr<FileSystem> file_system_;
     std::string table_root_;
     const std::string branch_;
-    mutable std::map<int64_t, std::shared_ptr<TableSchema>> schema_cache_;
+    mutable std::map<int64_t, std::shared_ptr<TableSchemaImpl>> schema_cache_;
 };
 
 }  // namespace paimon

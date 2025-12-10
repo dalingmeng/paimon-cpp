@@ -56,7 +56,7 @@ class InternalReadContext;
 class MemoryPool;
 class SchemaManager;
 class SortedRun;
-class TableSchema;
+class TableSchemaImpl;
 struct DataFileMeta;
 struct DeletionFile;
 struct KeyValue;
@@ -133,7 +133,7 @@ class MergeFileSplitRead : public AbstractSplitRead {
 
  private:
     static Status GenerateKeyValueReadSchema(
-        const TableSchema& table_schema, const CoreOptions& options,
+        const TableSchemaImpl& table_schema, const CoreOptions& options,
         const std::shared_ptr<arrow::Schema>& raw_read_schema,
         std::shared_ptr<arrow::Schema>* value_schema, std::shared_ptr<arrow::Schema>* read_schema,
         std::shared_ptr<FieldsComparator>* key_comparator,
@@ -145,11 +145,12 @@ class MergeFileSplitRead : public AbstractSplitRead {
                                          std::vector<DataField>* key_fields,
                                          std::vector<DataField>* non_key_fields);
 
-    static Status CompleteSequenceField(const TableSchema& table_schema, const CoreOptions& options,
+    static Status CompleteSequenceField(const TableSchemaImpl& table_schema,
+                                        const CoreOptions& options,
                                         std::vector<DataField>* non_key_fields);
 
     static Result<std::shared_ptr<Predicate>> GenerateKeyPredicates(
-        const std::shared_ptr<Predicate>& predicate, const TableSchema& table_schema);
+        const std::shared_ptr<Predicate>& predicate, const TableSchemaImpl& table_schema);
 
     static std::vector<int32_t> CreateProjection(
         const std::shared_ptr<arrow::Schema>& raw_read_schema,

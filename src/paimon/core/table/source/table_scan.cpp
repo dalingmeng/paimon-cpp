@@ -36,7 +36,7 @@
 #include "paimon/core/operation/key_value_file_store_scan.h"
 #include "paimon/core/schema/schema_manager.h"
 #include "paimon/core/schema/schema_validation.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/table/bucket_mode.h"
 #include "paimon/core/table/source/append_only_split_generator.h"
 #include "paimon/core/table/source/data_evolution_split_generator.h"
@@ -68,7 +68,7 @@ class TableScanImpl {
     static Result<std::unique_ptr<FileStoreScan>> CreateFileStoreScan(
         const std::shared_ptr<FileStorePathFactory>& path_factory,
         const std::shared_ptr<arrow::Schema>& arrow_schema,
-        const std::shared_ptr<TableSchema>& table_schema, const CoreOptions& core_options,
+        const std::shared_ptr<TableSchemaImpl>& table_schema, const CoreOptions& core_options,
         const std::shared_ptr<Executor>& executor, const std::shared_ptr<MemoryPool>& memory_pool,
         const ScanContext* context) {
         auto fs = core_options.GetFileSystem();
@@ -104,7 +104,7 @@ class TableScanImpl {
     }
 
     static Result<std::unique_ptr<SplitGenerator>> CreateSplitGenerator(
-        const std::shared_ptr<TableSchema>& table_schema, const CoreOptions& core_options,
+        const std::shared_ptr<TableSchemaImpl>& table_schema, const CoreOptions& core_options,
         const ScanContext* context) {
         auto source_split_target_size = core_options.GetSourceSplitTargetSize();
         auto source_split_open_file_cost = core_options.GetSourceSplitOpenFileCost();
@@ -159,13 +159,13 @@ Result<std::unique_ptr<TableScan>> TableScan::Create(std::unique_ptr<ScanContext
     // load schema
     PAIMON_ASSIGN_OR_RAISE(CoreOptions tmp_options, CoreOptions::FromMap(context->GetOptions()));
     SchemaManager schema_manager(tmp_options.GetFileSystem(), context->GetPath());
-    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchema>> latest_table_schema,
+    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchemaImpl>> latest_table_schema,
                            schema_manager.Latest());
     if (latest_table_schema == std::nullopt) {
         return Status::Invalid("not found latest schema");
     }
     const auto& table_schema = latest_table_schema.value();
-    if (table_schema->Id() != TableSchema::FIRST_SCHEMA_ID &&
+    if (table_schema->Id() != TableSchemaImpl::FIRST_SCHEMA_ID &&
         !table_schema->PrimaryKeys().empty()) {
         return Status::NotImplemented(
             "do not support schema evolution in pk table while scan process");

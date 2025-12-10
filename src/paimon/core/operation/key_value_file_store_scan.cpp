@@ -30,7 +30,7 @@
 #include "paimon/core/core_options.h"
 #include "paimon/core/io/data_file_meta.h"
 #include "paimon/core/options/merge_engine.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/stats/simple_stats.h"
 #include "paimon/predicate/predicate.h"
 
@@ -52,7 +52,7 @@ Result<std::unique_ptr<KeyValueFileStoreScan>> KeyValueFileStoreScan::Create(
     const std::shared_ptr<SchemaManager>& schema_manager,
     const std::shared_ptr<ManifestList>& manifest_list,
     const std::shared_ptr<ManifestFile>& manifest_file,
-    const std::shared_ptr<TableSchema>& table_schema,
+    const std::shared_ptr<TableSchemaImpl>& table_schema,
     const std::shared_ptr<arrow::Schema>& arrow_schema,
     const std::shared_ptr<ScanFilter>& scan_filters, const CoreOptions& core_options,
     const std::shared_ptr<Executor>& executor, const std::shared_ptr<MemoryPool>& pool) {

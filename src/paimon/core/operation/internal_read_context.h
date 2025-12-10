@@ -23,7 +23,7 @@
 #include <vector>
 
 #include "paimon/core/core_options.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/read_context.h"
 #include "paimon/result.h"
 
@@ -41,7 +41,7 @@ class InternalReadContext {
  public:
     static Result<std::unique_ptr<InternalReadContext>> Create(
         const std::shared_ptr<ReadContext>& read_context,
-        const std::shared_ptr<TableSchema>& table_schema,
+        const std::shared_ptr<TableSchemaImpl>& table_schema,
         const std::map<std::string, std::string>& options);
 
     const CoreOptions& GetCoreOptions() const {
@@ -50,7 +50,7 @@ class InternalReadContext {
     std::shared_ptr<arrow::Schema> GetReadSchema() const {
         return read_schema_;
     }
-    const std::shared_ptr<TableSchema>& GetTableSchema() const {
+    const std::shared_ptr<TableSchemaImpl>& GetTableSchema() const {
         return table_schema_;
     }
     const std::string& GetPath() const {
@@ -95,12 +95,12 @@ class InternalReadContext {
 
  private:
     InternalReadContext(const std::shared_ptr<ReadContext>& read_context,
-                        const std::shared_ptr<TableSchema>& table_schema,
+                        const std::shared_ptr<TableSchemaImpl>& table_schema,
                         const std::shared_ptr<arrow::Schema>& read_schema,
                         const CoreOptions& options);
 
     std::shared_ptr<ReadContext> read_context_;
-    std::shared_ptr<TableSchema> table_schema_;
+    std::shared_ptr<TableSchemaImpl> table_schema_;
     std::shared_ptr<arrow::Schema> read_schema_;
     CoreOptions options_;
 };

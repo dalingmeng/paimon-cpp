@@ -40,7 +40,7 @@
 #include "paimon/core/options/expire_config.h"
 #include "paimon/core/options/merge_engine.h"
 #include "paimon/core/schema/arrow_schema_validator.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/table/bucket_mode.h"
 #include "paimon/defs.h"
 #include "paimon/result.h"
@@ -52,7 +52,7 @@ bool SchemaValidation::IsComplexType(const std::shared_ptr<arrow::Field>& field)
             field->type()->id() == arrow::Type::DECIMAL || BlobUtils::IsBlobField(field));
 }
 
-Status SchemaValidation::ValidateTableSchema(const TableSchema& schema) {
+Status SchemaValidation::ValidateTableSchema(const TableSchemaImpl& schema) {
     const auto& field_names = schema.FieldNames();
     PAIMON_RETURN_NOT_OK(ValidateNoDuplicateField(schema.BucketKeys(), "bucket key"));
     PAIMON_RETURN_NOT_OK(ValidateNoDuplicateField(schema.PrimaryKeys(), "primary key"));
@@ -192,11 +192,11 @@ Status SchemaValidation::ValidateNotContainComplexType(
     return Status::OK();
 }
 
-bool SchemaValidation::IsPostponeBucketTable(const TableSchema& schema, int32_t bucket) {
+bool SchemaValidation::IsPostponeBucketTable(const TableSchemaImpl& schema, int32_t bucket) {
     return !schema.PrimaryKeys().empty() && bucket == BucketModeDefine::POSTPONE_BUCKET;
 }
 
-Status SchemaValidation::ValidateBucket(const TableSchema& schema, const CoreOptions& options) {
+Status SchemaValidation::ValidateBucket(const TableSchemaImpl& schema, const CoreOptions& options) {
     int32_t bucket = options.GetBucket();
     if (bucket == -1) {
         if (options.ToMap().count(Options::BUCKET_KEY)) {
@@ -207,7 +207,7 @@ Status SchemaValidation::ValidateBucket(const TableSchema& schema, const CoreOpt
         if (schema.PrimaryKeys().empty() &&
             options.ToMap().count("full-compaction.delta-commits")) {
             return Status::Invalid(
-                "AppendOnlyTable of unware or dynamic bucket does not support "
+                "AppendOnlyTable of unaware or dynamic bucket does not support "
                 "'full-compaction.delta-commits'");
         }
     } else if (bucket < 1 && !IsPostponeBucketTable(schema, bucket)) {
@@ -256,7 +256,7 @@ Status SchemaValidation::ValidateForDeletionVectors(const CoreOptions& options) 
         "no deletion of old data in this merge engine.");
 }
 
-Status SchemaValidation::ValidateSequenceGroup(const TableSchema& schema,
+Status SchemaValidation::ValidateSequenceGroup(const TableSchemaImpl& schema,
                                                const CoreOptions& options) {
     std::unordered_map<std::string, std::set<std::string>> fields2_group;
     auto sequence_groups_map = options.GetFieldsSequenceGroups();
@@ -324,7 +324,7 @@ Status SchemaValidation::ValidateSequenceGroup(const TableSchema& schema,
     return Status::OK();
 }
 
-Status SchemaValidation::ValidateSequenceField(const TableSchema& schema,
+Status SchemaValidation::ValidateSequenceField(const TableSchemaImpl& schema,
                                                const CoreOptions& options) {
     std::vector<std::string> sequence_field = options.GetSequenceField();
     if (!sequence_field.empty()) {
@@ -367,7 +367,7 @@ Status SchemaValidation::ValidateSequenceField(const TableSchema& schema,
     return Status::OK();
 }
 
-Status SchemaValidation::ValidateFieldsPrefix(const TableSchema& schema,
+Status SchemaValidation::ValidateFieldsPrefix(const TableSchemaImpl& schema,
                                               const CoreOptions& options) {
     const auto& field_names = schema.FieldNames();
     const auto& options_map = options.ToMap();
@@ -391,7 +391,7 @@ Status SchemaValidation::ValidateFieldsPrefix(const TableSchema& schema,
     return Status::OK();
 }
 
-Status SchemaValidation::ValidateRowTracking(const TableSchema& table_schema,
+Status SchemaValidation::ValidateRowTracking(const TableSchemaImpl& table_schema,
                                              const CoreOptions& options) {
     bool row_tracking_enabled = options.RowTrackingEnabled();
     if (row_tracking_enabled) {

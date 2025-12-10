@@ -27,7 +27,7 @@
 #include "paimon/common/data/internal_array.h"
 #include "paimon/common/utils/internal_row_utils.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/stats/simple_stats.h"
 #include "paimon/data/decimal.h"
 #include "paimon/data/timestamp.h"
@@ -141,8 +141,8 @@ class SimpleStatsEvolutionTest : public ::testing::Test {
   "timeMillis" : 1732605243483
 })==";
 
-        ASSERT_OK_AND_ASSIGN(old_schema_, TableSchema::CreateFromJson(old_schema_str));
-        ASSERT_OK_AND_ASSIGN(new_schema_, TableSchema::CreateFromJson(new_schema_str));
+        ASSERT_OK_AND_ASSIGN(old_schema_, TableSchemaImpl::CreateFromJson(old_schema_str));
+        ASSERT_OK_AND_ASSIGN(new_schema_, TableSchemaImpl::CreateFromJson(new_schema_str));
     }
 
     SimpleStats CreateStats() const {
@@ -204,8 +204,8 @@ class SimpleStatsEvolutionTest : public ::testing::Test {
  private:
     std::shared_ptr<MemoryPool> pool_ = GetDefaultPool();
     std::shared_ptr<FileSystem> fs_ = std::make_shared<LocalFileSystem>();
-    std::shared_ptr<TableSchema> old_schema_;
-    std::shared_ptr<TableSchema> new_schema_;
+    std::shared_ptr<TableSchemaImpl> old_schema_;
+    std::shared_ptr<TableSchemaImpl> new_schema_;
 };
 
 TEST_F(SimpleStatsEvolutionTest, TestNoChangeOfFields) {
@@ -213,7 +213,8 @@ TEST_F(SimpleStatsEvolutionTest, TestNoChangeOfFields) {
         paimon::test::GetDataDir() +
         "orc/append_table_alter_table_with_cast.db/append_table_alter_table_with_cast";
     SchemaManager manager(fs_, table_root);
-    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> schema, manager.ReadSchema(/*schema_id=*/0));
+    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> schema,
+                         manager.ReadSchema(/*schema_id=*/0));
     ASSERT_TRUE(schema);
 
     SimpleStatsEvolution evo(schema->Fields(), schema->Fields(), /*need_mapping=*/false, pool_);
@@ -230,7 +231,8 @@ TEST_F(SimpleStatsEvolutionTest, TestNoSchemaChangeWithEmptyDenseFields) {
         paimon::test::GetDataDir() +
         "orc/append_table_alter_table_with_cast.db/append_table_alter_table_with_cast";
     SchemaManager manager(fs_, table_root);
-    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> schema, manager.ReadSchema(/*schema_id=*/0));
+    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> schema,
+                         manager.ReadSchema(/*schema_id=*/0));
     ASSERT_TRUE(schema);
 
     SimpleStatsEvolution evo(schema->Fields(), schema->Fields(), /*need_mapping=*/false, pool_);
@@ -263,7 +265,8 @@ TEST_F(SimpleStatsEvolutionTest, TestNoSchemaChangeWithDenseFields) {
         paimon::test::GetDataDir() +
         "orc/append_table_alter_table_with_cast.db/append_table_alter_table_with_cast";
     SchemaManager manager(fs_, table_root);
-    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> schema, manager.ReadSchema(/*schema_id=*/0));
+    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> schema,
+                         manager.ReadSchema(/*schema_id=*/0));
     ASSERT_TRUE(schema);
 
     SimpleStatsEvolution evo(schema->Fields(), schema->Fields(), /*need_mapping=*/false, pool_);
@@ -343,7 +346,8 @@ TEST_F(SimpleStatsEvolutionTest, TestNoSchemaChangeWithDenseFieldsWithMap) {
         paimon::test::GetDataDir() +
         "orc/append_table_alter_table_with_cast.db/append_table_alter_table_with_cast";
     SchemaManager manager(fs_, table_root);
-    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> schema, manager.ReadSchema(/*schema_id=*/0));
+    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> schema,
+                         manager.ReadSchema(/*schema_id=*/0));
     ASSERT_TRUE(schema);
 
     SimpleStatsEvolution evo(schema->Fields(), schema->Fields(), /*need_mapping=*/false, pool_);
@@ -439,10 +443,12 @@ TEST_F(SimpleStatsEvolutionTest, TestGetFieldMap) {
         paimon::test::GetDataDir() +
         "orc/append_table_alter_table_with_cast.db/append_table_alter_table_with_cast";
     SchemaManager manager(fs_, table_root);
-    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> schema, manager.ReadSchema(/*schema_id=*/0));
+    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> schema,
+                         manager.ReadSchema(/*schema_id=*/0));
     ASSERT_TRUE(schema);
 
-    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> schema1, manager.ReadSchema(/*schema_id=*/1));
+    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> schema1,
+                         manager.ReadSchema(/*schema_id=*/1));
     ASSERT_TRUE(schema1);
 
     SimpleStatsEvolution evo(schema->Fields(), schema1->Fields(), /*need_mapping=*/true, pool_);

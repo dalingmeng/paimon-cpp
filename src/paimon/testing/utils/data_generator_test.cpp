@@ -23,7 +23,7 @@
 #include "gtest/gtest.h"
 #include "paimon/common/data/binary_row.h"
 #include "paimon/common/types/row_kind.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/defs.h"
 #include "paimon/memory/memory_pool.h"
 #include "paimon/testing/utils/binary_row_generator.h"
@@ -57,8 +57,8 @@ TEST_F(DataGeneratorTest, TestSimple) {
     options[Options::BUCKET_KEY] = "f0";
     options[Options::BUCKET] = "2";
     ASSERT_OK_AND_ASSIGN(
-        std::shared_ptr<TableSchema> table_schema,
-        TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        std::shared_ptr<TableSchemaImpl> table_schema,
+        TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
     DataGenerator gen(table_schema, GetDefaultPool());
 
     std::vector<BinaryRow> rows;

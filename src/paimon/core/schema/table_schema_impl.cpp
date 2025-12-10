@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 
 #include <algorithm>
 #include <iterator>
@@ -22,6 +22,9 @@
 #include <utility>
 
 #include "arrow/api.h"
+#include "arrow/c/abi.h"
+#include "arrow/c/bridge.h"
+#include "arrow/ipc/api.h"
 #include "arrow/util/checked_cast.h"
 #include "fmt/format.h"
 #include "paimon/common/utils/arrow/status_utils.h"
@@ -39,7 +42,7 @@
 
 namespace paimon {
 
-Result<std::unique_ptr<TableSchema>> TableSchema::Create(
+Result<std::unique_ptr<TableSchemaImpl>> TableSchemaImpl::Create(
     int64_t schema_id, const std::shared_ptr<arrow::Schema>& schema,
     const std::vector<std::string>& partition_keys, const std::vector<std::string>& primary_keys,
     const std::map<std::string, std::string>& options) {
@@ -66,7 +69,7 @@ Result<std::unique_ptr<TableSchema>> TableSchema::Create(
                       DateTimeUtils::GetCurrentUTCTimeUs() / 1000);
 }
 
-Result<std::shared_ptr<arrow::KeyValueMetadata>> TableSchema::MakeMetaDataWithFieldId(
+Result<std::shared_ptr<arrow::KeyValueMetadata>> TableSchemaImpl::MakeMetaDataWithFieldId(
     const std::shared_ptr<arrow::Field>& field, int32_t field_id) {
     std::vector<std::string> keys = {std::string(DataField::FIELD_ID)};
     std::vector<std::string> values = {std::to_string(field_id)};
@@ -85,7 +88,7 @@ Result<std::shared_ptr<arrow::KeyValueMetadata>> TableSchema::MakeMetaDataWithFi
     return metadata;
 }
 
-Result<std::shared_ptr<arrow::Field>> TableSchema::AssignFieldIdsRecursively(
+Result<std::shared_ptr<arrow::Field>> TableSchemaImpl::AssignFieldIdsRecursively(
     const std::shared_ptr<arrow::Field>& field, bool assign_id_to_self, int32_t* field_id) {
     std::shared_ptr<arrow::KeyValueMetadata> metadata;
     if (assign_id_to_self) {
@@ -123,7 +126,7 @@ Result<std::shared_ptr<arrow::Field>> TableSchema::AssignFieldIdsRecursively(
     return metadata ? field->WithMergedMetadata(metadata) : field;
 }
 
-rapidjson::Value TableSchema::ToJson(rapidjson::Document::AllocatorType* allocator) const
+rapidjson::Value TableSchemaImpl::ToJson(rapidjson::Document::AllocatorType* allocator) const
     noexcept(false) {
     rapidjson::Value obj(rapidjson::kObjectType);
     obj.AddMember(rapidjson::StringRef("version"),
@@ -149,10 +152,12 @@ rapidjson::Value TableSchema::ToJson(rapidjson::Document::AllocatorType* allocat
     return obj;
 }
 
-TableSchema::TableSchema(int32_t version, int64_t id, const std::vector<DataField>& fields,
-                         int32_t highest_field_id, const std::vector<std::string>& partition_keys,
-                         const std::vector<std::string>& primary_keys,
-                         const std::map<std::string, std::string>& options, int64_t time_millis)
+TableSchemaImpl::TableSchemaImpl(int32_t version, int64_t id, const std::vector<DataField>& fields,
+                                 int32_t highest_field_id,
+                                 const std::vector<std::string>& partition_keys,
+                                 const std::vector<std::string>& primary_keys,
+                                 const std::map<std::string, std::string>& options,
+                                 int64_t time_millis)
     : version_(version),
       id_(id),
       fields_(fields),
@@ -162,13 +167,13 @@ TableSchema::TableSchema(int32_t version, int64_t id, const std::vector<DataFiel
       options_(options),
       time_millis_(time_millis) {}
 
-bool TableSchema::operator==(const TableSchema& other) const {
+bool TableSchemaImpl::operator==(const TableSchemaImpl& other) const {
     return version_ == other.version_ && fields_ == other.fields_ &&
            partition_keys_ == other.partition_keys_ && primary_keys_ == other.primary_keys_ &&
            options_ == other.options_ && comment_ == other.comment_ &&
            time_millis_ == other.time_millis_;
 }
-std::vector<std::string> TableSchema::FieldNames() const {
+std::vector<std::string> TableSchemaImpl::FieldNames() const {
     std::vector<std::string> field_names;
     field_names.reserve(fields_.size());
     std::transform(fields_.begin(), fields_.end(), std::back_inserter(field_names),
@@ -176,7 +181,7 @@ std::vector<std::string> TableSchema::FieldNames() const {
     return field_names;
 }
 
-Result<DataField> TableSchema::GetField(const std::string& field_name) const {
+Result<DataField> TableSchemaImpl::GetField(const std::string& field_name) const {
     for (const auto& field : Fields()) {
         if (field.Name() == field_name) {
             return field;
@@ -186,7 +191,7 @@ Result<DataField> TableSchema::GetField(const std::string& field_name) const {
         fmt::format("Get field {} failed: not exist in table schema", field_name));
 }
 
-Result<DataField> TableSchema::GetField(int32_t field_id) const {
+Result<DataField> TableSchemaImpl::GetField(int32_t field_id) const {
     for (const auto& field : Fields()) {
         if (field.Id() == field_id) {
             return field;
@@ -196,7 +201,7 @@ Result<DataField> TableSchema::GetField(int32_t field_id) const {
         fmt::format("Get field with id {} failed: not exist in table schema", field_id));
 }
 
-Result<std::vector<DataField>> TableSchema::TrimmedPrimaryKeyFields() const {
+Result<std::vector<DataField>> TableSchemaImpl::TrimmedPrimaryKeyFields() const {
     PAIMON_ASSIGN_OR_RAISE(std::vector<std::string> trimmed_primary_keys, TrimmedPrimaryKeys());
     std::vector<DataField> data_fields;
     for (const auto& trimmed_primary_key : trimmed_primary_keys) {
@@ -210,14 +215,15 @@ Result<std::vector<DataField>> TableSchema::TrimmedPrimaryKeyFields() const {
     return data_fields;
 }
 
-Result<std::unique_ptr<TableSchema>> TableSchema::CreateFromJson(const std::string& json_str) {
-    PAIMON_ASSIGN_OR_RAISE(TableSchema table_schema, TableSchema::FromJsonString(json_str));
+Result<std::unique_ptr<TableSchemaImpl>> TableSchemaImpl::CreateFromJson(
+    const std::string& json_str) {
+    PAIMON_ASSIGN_OR_RAISE(TableSchemaImpl table_schema, TableSchemaImpl::FromJsonString(json_str));
     return InitSchema(table_schema.id_, table_schema.fields_, table_schema.highest_field_id_,
                       table_schema.partition_keys_, table_schema.primary_keys_,
                       table_schema.options_, table_schema.time_millis_);
 }
 
-Result<std::unique_ptr<TableSchema>> TableSchema::InitSchema(
+Result<std::unique_ptr<TableSchemaImpl>> TableSchemaImpl::InitSchema(
     int64_t schema_id, const std::vector<DataField>& fields, int32_t highest_field_id,
     const std::vector<std::string>& partition_keys, const std::vector<std::string>& primary_keys,
     const std::map<std::string, std::string>& options, int64_t time_millis) {
@@ -225,9 +231,9 @@ Result<std::unique_ptr<TableSchema>> TableSchema::InitSchema(
     auto arrow_schema = DataField::ConvertDataFieldsToArrowSchema(fields);
     PAIMON_RETURN_NOT_OK(ArrowSchemaValidator::ValidateSchemaWithFieldId(*arrow_schema));
 
-    auto table_schema = std::unique_ptr<TableSchema>(
-        new TableSchema(TableSchema::CURRENT_VERSION, schema_id, fields, highest_field_id,
-                        partition_keys, primary_keys, options, time_millis));
+    auto table_schema = std::unique_ptr<TableSchemaImpl>(
+        new TableSchemaImpl(TableSchemaImpl::CURRENT_VERSION, schema_id, fields, highest_field_id,
+                            partition_keys, primary_keys, options, time_millis));
     PAIMON_ASSIGN_OR_RAISE(std::vector<std::string> keys, table_schema->TrimmedPrimaryKeys());
 
     // Try to validate bucket keys
@@ -244,7 +250,7 @@ Result<std::unique_ptr<TableSchema>> TableSchema::InitSchema(
     return table_schema;
 }
 
-void TableSchema::FromJson(const rapidjson::Value& obj) noexcept(false) {
+void TableSchemaImpl::FromJson(const rapidjson::Value& obj) noexcept(false) {
     version_ = RapidJsonUtil::DeserializeKeyValue<int32_t>(obj, "version", PAIMON_07_VERSION);
     id_ = RapidJsonUtil::DeserializeKeyValue<int64_t>(obj, "id");
     fields_ = RapidJsonUtil::DeserializeKeyValue<std::vector<DataField>>(obj, "fields");
@@ -268,7 +274,7 @@ void TableSchema::FromJson(const rapidjson::Value& obj) noexcept(false) {
     time_millis_ = RapidJsonUtil::DeserializeKeyValue<int64_t>(obj, "timeMillis", 0);
 }
 
-Result<std::vector<std::string>> TableSchema::TrimmedPrimaryKeys() const {
+Result<std::vector<std::string>> TableSchemaImpl::TrimmedPrimaryKeys() const {
     if (primary_keys_.size() > 0) {
         std::vector<std::string> result;
         result.reserve(primary_keys_.size());
@@ -290,7 +296,7 @@ Result<std::vector<std::string>> TableSchema::TrimmedPrimaryKeys() const {
 }
 
 /// Original bucket keys, maybe empty.
-Result<std::vector<std::string>> TableSchema::OriginalBucketKeys() const {
+Result<std::vector<std::string>> TableSchemaImpl::OriginalBucketKeys() const {
     std::vector<std::string> bucket_keys;
     auto iter = options_.find(Options::BUCKET_KEY);
     if (iter == options_.end()) {
@@ -324,13 +330,24 @@ Result<std::vector<std::string>> TableSchema::OriginalBucketKeys() const {
     return bucket_keys;
 }
 
-bool TableSchema::CrossPartitionUpdate() const {
+bool TableSchemaImpl::CrossPartitionUpdate() const {
     if (primary_keys_.empty() || partition_keys_.empty()) {
         return false;
     }
 
     // If any partition key is not in primary keys, return true
     return !ObjectUtils::ContainsAll(primary_keys_, partition_keys_);
+}
+
+Result<std::unique_ptr<::ArrowSchema>> TableSchemaImpl::GetArrowSchema() const {
+    std::shared_ptr<arrow::Schema> schema = DataField::ConvertDataFieldsToArrowSchema(fields_);
+    auto arrow_schema = std::make_unique<::ArrowSchema>();
+    arrow::Status arrow_status = arrow::ExportSchema(*schema, arrow_schema.get());
+    if (!arrow_status.ok()) {
+        return Status::Invalid(
+            fmt::format("export schema failed, status: {}.", arrow_status.ToString()));
+    }
+    return arrow_schema;
 }
 
 }  // namespace paimon

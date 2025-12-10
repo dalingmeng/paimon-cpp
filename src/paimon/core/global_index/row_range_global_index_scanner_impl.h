@@ -18,7 +18,7 @@
 #include "paimon/core/core_options.h"
 #include "paimon/core/global_index/global_index_file_manager.h"
 #include "paimon/core/manifest/index_manifest_entry.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/global_index/global_index_io_meta.h"
 #include "paimon/global_index/row_range_global_index_scanner.h"
 namespace paimon {
@@ -29,7 +29,7 @@ class RowRangeGlobalIndexScannerImpl
     using IndexManifestEntryGroup =
         std::map<int32_t, std::map<std::string, std::vector<IndexManifestEntry>>>;
 
-    RowRangeGlobalIndexScannerImpl(const std::shared_ptr<TableSchema>& table_schema,
+    RowRangeGlobalIndexScannerImpl(const std::shared_ptr<TableSchemaImpl>& table_schema,
                                    const std::shared_ptr<IndexPathFactory>& path_factory,
                                    const IndexManifestEntryGroup& grouped_entries,
                                    const CoreOptions& options,
@@ -55,7 +55,7 @@ class RowRangeGlobalIndexScannerImpl
 
  private:
     std::shared_ptr<MemoryPool> pool_;
-    std::shared_ptr<TableSchema> table_schema_;
+    std::shared_ptr<TableSchemaImpl> table_schema_;
     CoreOptions options_;
     IndexManifestEntryGroup grouped_entries_;
     std::shared_ptr<GlobalIndexFileManager> index_file_manager_;

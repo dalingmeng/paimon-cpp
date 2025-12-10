@@ -29,7 +29,7 @@
 #include "paimon/core/manifest/manifest_list.h"
 #include "paimon/core/operation/orphan_files_cleaner_impl.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/utils/field_mapping.h"
 #include "paimon/core/utils/file_store_path_factory.h"
 #include "paimon/core/utils/snapshot_manager.h"
@@ -151,7 +151,7 @@ Result<std::unique_ptr<OrphanFilesCleaner>> OrphanFilesCleaner::Create(
     }
     PAIMON_ASSIGN_OR_RAISE(CoreOptions tmp_options, CoreOptions::FromMap(ctx->GetOptions()));
     SchemaManager schema_manager(tmp_options.GetFileSystem(), ctx->GetRootPath());
-    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchema>> table_schema,
+    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchemaImpl>> table_schema,
                            schema_manager.Latest());
     if (table_schema == std::nullopt) {
         return Status::Invalid("not found latest schema");

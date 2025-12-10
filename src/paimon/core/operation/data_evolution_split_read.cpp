@@ -267,7 +267,7 @@ Result<std::unique_ptr<DataEvolutionFileReader>> DataEvolutionSplitRead::CreateU
         const auto& bunch = fields_files[file_idx];
         const auto& first_file = bunch->Files()[0];
         int64_t schema_id = first_file->schema_id;
-        std::shared_ptr<TableSchema> data_schema = context_->GetTableSchema();
+        std::shared_ptr<TableSchemaImpl> data_schema = context_->GetTableSchema();
         if (schema_id != data_schema->Id()) {
             PAIMON_ASSIGN_OR_RAISE(data_schema, schema_manager_->ReadSchema(schema_id));
         }

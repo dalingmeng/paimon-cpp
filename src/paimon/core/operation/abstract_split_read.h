@@ -53,7 +53,7 @@ class InternalReadContext;
 class MemoryPool;
 class Predicate;
 struct DataFileMeta;
-class TableSchema;
+class TableSchemaImpl;
 
 class AbstractSplitRead : public SplitRead {
  public:
@@ -93,7 +93,7 @@ class AbstractSplitRead : public SplitRead {
     // 2. add partition fields (if write cols not contain)
     // 3. add row tracking fields
     static Result<std::vector<DataField>> ProjectFieldsForRowTrackingAndDataEvolution(
-        const std::shared_ptr<TableSchema>& data_schema,
+        const std::shared_ptr<TableSchemaImpl>& data_schema,
         const std::optional<std::vector<std::string>>& write_cols);
 
  private:

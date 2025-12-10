@@ -22,7 +22,7 @@
 #include <vector>
 
 #include "paimon/core/core_options.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/status.h"
 
 namespace arrow {
@@ -33,17 +33,17 @@ class Field;
 namespace paimon {
 class CoreOptions;
 class DataField;
-class TableSchema;
+class TableSchemaImpl;
 
-/// Validation utils for `TableSchema`.
+/// Validation utils for `TableSchemaImpl`.
 class SchemaValidation {
  public:
     SchemaValidation() = delete;
     ~SchemaValidation() = delete;
 
-    static Status ValidateTableSchema(const TableSchema& schema);
+    static Status ValidateTableSchema(const TableSchemaImpl& schema);
 
-    static bool IsPostponeBucketTable(const TableSchema& schema, int32_t bucket);
+    static bool IsPostponeBucketTable(const TableSchemaImpl& schema, int32_t bucket);
 
  private:
     static Status ValidateNoDuplicateField(const std::vector<std::string>& field_names,
@@ -53,19 +53,20 @@ class SchemaValidation {
                                                    const std::string& error_message_intro);
     static Status ValidateNotContainComplexType(const std::vector<DataField>& fields,
                                                 const std::vector<std::string>& field_names);
-    static Status ValidateBucket(const TableSchema& schema, const CoreOptions& options);
-    static Status ValidateDefaultValues(const TableSchema& schema) {
+    static Status ValidateBucket(const TableSchemaImpl& schema, const CoreOptions& options);
+    static Status ValidateDefaultValues(const TableSchemaImpl& schema) {
         return Status::NotImplemented("validate default values not implemented");
     }
     static Status ValidateStartupMode(const CoreOptions& options) {
         return Status::NotImplemented("validate startup mode not implemented");
     }
-    static Status ValidateFieldsPrefix(const TableSchema& schema, const CoreOptions& options);
-    static Status ValidateSequenceField(const TableSchema& schema, const CoreOptions& options);
-    static Status ValidateSequenceGroup(const TableSchema& schema, const CoreOptions& options);
+    static Status ValidateFieldsPrefix(const TableSchemaImpl& schema, const CoreOptions& options);
+    static Status ValidateSequenceField(const TableSchemaImpl& schema, const CoreOptions& options);
+    static Status ValidateSequenceGroup(const TableSchemaImpl& schema, const CoreOptions& options);
     static Status ValidateForDeletionVectors(const CoreOptions& options);
 
-    static Status ValidateRowTracking(const TableSchema& table_schema, const CoreOptions& options);
+    static Status ValidateRowTracking(const TableSchemaImpl& table_schema,
+                                      const CoreOptions& options);
 
     static bool IsComplexType(const std::shared_ptr<arrow::Field>& field);
 };

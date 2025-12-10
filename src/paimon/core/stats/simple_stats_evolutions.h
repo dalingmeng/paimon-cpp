@@ -16,18 +16,18 @@
 
 #pragma once
 #include "paimon/common/utils/concurrent_hash_map.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/stats/simple_stats_evolution.h"
 
 namespace paimon {
 class SimpleStatsEvolutions {
  public:
-    SimpleStatsEvolutions(const std::shared_ptr<TableSchema>& table_schema,
+    SimpleStatsEvolutions(const std::shared_ptr<TableSchemaImpl>& table_schema,
                           const std::shared_ptr<MemoryPool>& pool)
         : pool_(pool), table_schema_(table_schema) {}
 
     std::shared_ptr<SimpleStatsEvolution> GetOrCreate(
-        const std::shared_ptr<TableSchema>& data_schema) {
+        const std::shared_ptr<TableSchemaImpl>& data_schema) {
         auto data_schema_id = data_schema->Id();
         auto cached_evolution = evolutions_.Find(data_schema_id);
         if (cached_evolution != std::nullopt) {
@@ -42,7 +42,7 @@ class SimpleStatsEvolutions {
 
  private:
     std::shared_ptr<MemoryPool> pool_;
-    std::shared_ptr<TableSchema> table_schema_;
+    std::shared_ptr<TableSchemaImpl> table_schema_;
     // scheme_id -> evolution
     ConcurrentHashMap<int64_t, std::shared_ptr<SimpleStatsEvolution>> evolutions_;
 };

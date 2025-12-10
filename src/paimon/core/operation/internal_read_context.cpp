@@ -30,7 +30,8 @@ class Schema;
 
 namespace paimon {
 Result<std::unique_ptr<InternalReadContext>> InternalReadContext::Create(
-    const std::shared_ptr<ReadContext>& context, const std::shared_ptr<TableSchema>& table_schema,
+    const std::shared_ptr<ReadContext>& context,
+    const std::shared_ptr<TableSchemaImpl>& table_schema,
     const std::map<std::string, std::string>& options) {
     PAIMON_ASSIGN_OR_RAISE(
         CoreOptions core_options,
@@ -72,7 +73,7 @@ Result<std::unique_ptr<InternalReadContext>> InternalReadContext::Create(
 }
 
 InternalReadContext::InternalReadContext(const std::shared_ptr<ReadContext>& read_context,
-                                         const std::shared_ptr<TableSchema>& table_schema,
+                                         const std::shared_ptr<TableSchemaImpl>& table_schema,
                                          const std::shared_ptr<arrow::Schema>& read_schema,
                                          const CoreOptions& options)
     : read_context_(read_context),

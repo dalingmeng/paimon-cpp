@@ -22,7 +22,7 @@
 
 namespace paimon {
 GlobalIndexScanImpl::GlobalIndexScanImpl(
-    const std::string& root_path, const std::shared_ptr<TableSchema>& table_schema,
+    const std::string& root_path, const std::shared_ptr<TableSchemaImpl>& table_schema,
     const std::optional<int64_t>& snapshot_id,
     const std::optional<std::vector<std::map<std::string, std::string>>>& partitions,
     const CoreOptions& options, const std::shared_ptr<MemoryPool>& pool)

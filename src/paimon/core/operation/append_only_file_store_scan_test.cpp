@@ -27,7 +27,7 @@
 #include "paimon/common/data/binary_row_writer.h"
 #include "paimon/core/manifest/partition_entry.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/stats/simple_stats_evolution.h"
 #include "paimon/core/table/source/abstract_table_scan.h"
 #include "paimon/core/table/source/snapshot/snapshot_reader.h"
@@ -49,9 +49,11 @@ TEST(AppendOnlyFileStoreScanTest, TestReconstructPredicateWithNonCastedFields) {
     auto fs = std::make_shared<LocalFileSystem>();
     auto pool = GetDefaultPool();
     SchemaManager manager(fs, table_root);
-    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> schema, manager.ReadSchema(/*schema_id=*/0));
+    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> schema,
+                         manager.ReadSchema(/*schema_id=*/0));
     ASSERT_TRUE(schema);
-    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchema> schema1, manager.ReadSchema(/*schema_id=*/1));
+    ASSERT_OK_AND_ASSIGN(std::shared_ptr<TableSchemaImpl> schema1,
+                         manager.ReadSchema(/*schema_id=*/1));
     ASSERT_TRUE(schema1);
     auto evo = std::make_shared<SimpleStatsEvolution>(schema->Fields(), schema1->Fields(),
                                                       /*need_mapping=*/true, pool);

@@ -217,7 +217,7 @@ set(PAIMON_CORE_SRCS
     core/schema/arrow_schema_validator.cpp
     core/schema/schema_manager.cpp
     core/schema/schema_validation.cpp
-    core/schema/table_schema.cpp
+    core/schema/table_schema_impl.cpp
     core/snapshot.cpp
     core/stats/simple_stats_collector.cpp
     core/stats/simple_stats_converter.cpp

@@ -22,7 +22,7 @@
 #include "paimon/global_index/global_indexer_factory.h"
 namespace paimon {
 RowRangeGlobalIndexScannerImpl::RowRangeGlobalIndexScannerImpl(
-    const std::shared_ptr<TableSchema>& table_schema,
+    const std::shared_ptr<TableSchemaImpl>& table_schema,
     const std::shared_ptr<IndexPathFactory>& path_factory,
     const RowRangeGlobalIndexScannerImpl::IndexManifestEntryGroup& grouped_entries,
     const CoreOptions& options, const std::shared_ptr<MemoryPool>& pool)

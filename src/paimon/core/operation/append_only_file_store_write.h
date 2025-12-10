@@ -55,7 +55,7 @@ class Executor;
 class Logger;
 class MemoryPool;
 class SchemaManager;
-class TableSchema;
+class TableSchemaImpl;
 
 class AppendOnlyFileStoreWrite : public AbstractFileStoreWrite {
  public:
@@ -63,7 +63,7 @@ class AppendOnlyFileStoreWrite : public AbstractFileStoreWrite {
                              const std::shared_ptr<SnapshotManager>& snapshot_manager,
                              const std::shared_ptr<SchemaManager>& schema_manager,
                              const std::string& commit_user, const std::string& root_path,
-                             const std::shared_ptr<TableSchema>& table_schema,
+                             const std::shared_ptr<TableSchemaImpl>& table_schema,
                              const std::shared_ptr<arrow::Schema>& schema,
                              const std::shared_ptr<arrow::Schema>& write_schema,
                              const std::shared_ptr<arrow::Schema>& partition_schema,

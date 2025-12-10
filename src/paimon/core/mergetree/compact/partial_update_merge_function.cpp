@@ -33,7 +33,7 @@
 #include "paimon/core/mergetree/compact/aggregate/field_aggregator_factory.h"
 #include "paimon/core/mergetree/compact/aggregate/field_last_non_null_value_agg.h"
 #include "paimon/core/mergetree/compact/aggregate/field_primary_key_agg.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/defs.h"
 
 namespace paimon {
@@ -79,7 +79,7 @@ Status PartialUpdateMergeFunction::ParseSequenceGroupFields(
 }
 
 Status PartialUpdateMergeFunction::CompleteSequenceGroupFields(
-    const TableSchema& table_schema,
+    const TableSchemaImpl& table_schema,
     const std::map<std::string, std::vector<std::string>>& value_field_to_seq_group_field,
     std::vector<DataField>* value_fields) {
     if (value_field_to_seq_group_field.empty()) {

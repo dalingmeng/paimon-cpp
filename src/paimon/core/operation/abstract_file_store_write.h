@@ -51,7 +51,7 @@ class ScanFilter;
 class Snapshot;
 class SnapshotManager;
 class SchemaManager;
-class TableSchema;
+class TableSchemaImpl;
 class MetricsImpl;
 class BinaryRow;
 class Executor;
@@ -66,7 +66,7 @@ class AbstractFileStoreWrite : public FileStoreWrite {
                            const std::shared_ptr<SnapshotManager>& snapshot_manager,
                            const std::shared_ptr<SchemaManager>& schema_manager,
                            const std::string& commit_user, const std::string& root_path,
-                           const std::shared_ptr<TableSchema>& table_schema,
+                           const std::shared_ptr<TableSchemaImpl>& table_schema,
                            const std::shared_ptr<arrow::Schema>& schema,
                            const std::shared_ptr<arrow::Schema>& write_schema,
                            const std::shared_ptr<arrow::Schema>& partition_schema,
@@ -119,7 +119,7 @@ class AbstractFileStoreWrite : public FileStoreWrite {
     std::string root_path_;
     std::shared_ptr<arrow::Schema> schema_;
     std::shared_ptr<arrow::Schema> write_schema_;
-    std::shared_ptr<TableSchema> table_schema_;
+    std::shared_ptr<TableSchemaImpl> table_schema_;
     std::shared_ptr<arrow::Schema> partition_schema_;
     CoreOptions options_;
 

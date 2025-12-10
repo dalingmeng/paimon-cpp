@@ -24,61 +24,62 @@
 #include <vector>
 
 #include "arrow/api.h"
+#include "arrow/ipc/api.h"
 #include "paimon/common/types/data_field.h"
 #include "paimon/common/utils/jsonizable.h"
 #include "paimon/result.h"
+#include "paimon/schema/table_schema.h"
 #include "rapidjson/allocators.h"
 #include "rapidjson/document.h"
 #include "rapidjson/rapidjson.h"
-
 struct ArrowSchema;
 
 namespace paimon {
 /// Schema of a table, including schemaId and fieldId.
-class TableSchema : public Jsonizable<TableSchema> {
+class TableSchemaImpl : public Jsonizable<TableSchemaImpl>, public TableSchema {
  public:
     static constexpr int64_t FIRST_SCHEMA_ID = 0;
     static constexpr int32_t PAIMON_07_VERSION = 1;
     static constexpr int32_t PAIMON_08_VERSION = 2;
     static constexpr int32_t CURRENT_VERSION = 3;
 
-    static Result<std::unique_ptr<TableSchema>> Create(
+    static Result<std::unique_ptr<TableSchemaImpl>> Create(
         int64_t schema_id, const std::shared_ptr<arrow::Schema>& schema,
         const std::vector<std::string>& partition_keys,
         const std::vector<std::string>& primary_keys,
         const std::map<std::string, std::string>& options);
 
-    static Result<std::unique_ptr<TableSchema>> CreateFromJson(const std::string& json_str);
+    static Result<std::unique_ptr<TableSchemaImpl>> CreateFromJson(const std::string& json_str);
 
     rapidjson::Value ToJson(rapidjson::Document::AllocatorType* allocator) const
         noexcept(false) override;
 
     void FromJson(const rapidjson::Value& obj) noexcept(false) override;
 
-    bool operator==(const TableSchema& other) const;
+    bool operator==(const TableSchemaImpl& other) const;
 
-    std::vector<std::string> FieldNames() const;
-    int64_t Id() const {
+    std::vector<std::string> FieldNames() const override;
+    int64_t Id() const override {
         return id_;
     }
-    const std::vector<std::string>& PrimaryKeys() const {
+    const std::vector<std::string>& PrimaryKeys() const override {
         return primary_keys_;
     }
-    const std::vector<std::string>& PartitionKeys() const {
+    const std::vector<std::string>& PartitionKeys() const override {
         return partition_keys_;
     }
 
-    const std::vector<std::string>& BucketKeys() const {
+    const std::vector<std::string>& BucketKeys() const override {
         return bucket_keys_;
     }
 
-    int32_t NumBuckets() const {
+    int32_t NumBuckets() const override {
         return num_bucket_;
     }
-    int32_t HighestFieldId() const {
+    int32_t HighestFieldId() const override {
         return highest_field_id_;
     }
-    const std::map<std::string, std::string>& Options() const {
+    const std::map<std::string, std::string>& Options() const override {
         return options_;
     }
     const std::vector<DataField>& Fields() const {
@@ -92,25 +93,27 @@ class TableSchema : public Jsonizable<TableSchema> {
 
     Result<std::vector<std::string>> TrimmedPrimaryKeys() const;
 
-    std::optional<std::string> Commit() const {
+    std::optional<std::string> Comment() const override {
         return comment_;
     }
 
     bool CrossPartitionUpdate() const;
 
- private:
-    JSONIZABLE_FRIEND_AND_DEFAULT_CTOR(TableSchema);
+    Result<std::unique_ptr<::ArrowSchema>> GetArrowSchema() const override;
 
-    static Result<std::unique_ptr<TableSchema>> InitSchema(
+ private:
+    JSONIZABLE_FRIEND_AND_DEFAULT_CTOR(TableSchemaImpl);
+
+    static Result<std::unique_ptr<TableSchemaImpl>> InitSchema(
         int64_t schema_id, const std::vector<DataField>& fields, int32_t highest_field_id,
         const std::vector<std::string>& partition_keys,
         const std::vector<std::string>& primary_keys,
         const std::map<std::string, std::string>& options, int64_t time_millis);
 
-    TableSchema(int32_t version, int64_t id, const std::vector<DataField>& fields,
-                int32_t highest_field_id, const std::vector<std::string>& partition_keys,
-                const std::vector<std::string>& primary_keys,
-                const std::map<std::string, std::string>& options, int64_t time_millis);
+    TableSchemaImpl(int32_t version, int64_t id, const std::vector<DataField>& fields,
+                    int32_t highest_field_id, const std::vector<std::string>& partition_keys,
+                    const std::vector<std::string>& primary_keys,
+                    const std::map<std::string, std::string>& options, int64_t time_millis);
 
     Result<std::vector<std::string>> OriginalBucketKeys() const;
 

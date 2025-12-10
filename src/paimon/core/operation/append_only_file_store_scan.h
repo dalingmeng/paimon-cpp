@@ -41,7 +41,7 @@ class SchemaManager;
 class SimpleStatsEvolution;
 class SimpleStatsEvolutions;
 class SnapshotManager;
-class TableSchema;
+class TableSchemaImpl;
 struct DataFileMeta;
 
 /// `FileStoreScan` for `AppendOnlyFileStore`.
@@ -52,7 +52,7 @@ class AppendOnlyFileStoreScan : public FileStoreScan {
         const std::shared_ptr<SchemaManager>& schema_manager,
         const std::shared_ptr<ManifestList>& manifest_list,
         const std::shared_ptr<ManifestFile>& manifest_file,
-        const std::shared_ptr<TableSchema>& table_schema,
+        const std::shared_ptr<TableSchemaImpl>& table_schema,
         const std::shared_ptr<arrow::Schema>& arrow_schema,
         const std::shared_ptr<ScanFilter>& scan_filters, const CoreOptions& core_options,
         const std::shared_ptr<Executor>& executor, const std::shared_ptr<MemoryPool>& pool);
@@ -68,13 +68,13 @@ class AppendOnlyFileStoreScan : public FileStoreScan {
 
     Result<bool> TestFileIndex(const std::shared_ptr<DataFileMeta>& meta,
                                const std::shared_ptr<SimpleStatsEvolution>& evolution,
-                               const std::shared_ptr<TableSchema>& data_schema) const;
+                               const std::shared_ptr<TableSchemaImpl>& data_schema) const;
 
     AppendOnlyFileStoreScan(const std::shared_ptr<SnapshotManager>& snapshot_manager,
                             const std::shared_ptr<SchemaManager>& schema_manager,
                             const std::shared_ptr<ManifestList>& manifest_list,
                             const std::shared_ptr<ManifestFile>& manifest_file,
-                            const std::shared_ptr<TableSchema>& table_schema,
+                            const std::shared_ptr<TableSchemaImpl>& table_schema,
                             const std::shared_ptr<arrow::Schema>& schema,
                             const CoreOptions& core_options,
                             const std::shared_ptr<Executor>& executor,

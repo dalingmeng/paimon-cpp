@@ -126,8 +126,8 @@ Result<bool> DataEvolutionFileStoreScan::FilterByStatsWithSameRowId(
     }
     // evolution stats from multiple entries with the same first row id, from data schema to
     // table schema, also deal with dense fields
-    std::function<Result<std::shared_ptr<TableSchema>>(int64_t)> schema_fetcher =
-        [this](int64_t schema_id) -> Result<std::shared_ptr<TableSchema>> {
+    std::function<Result<std::shared_ptr<TableSchemaImpl>>(int64_t)> schema_fetcher =
+        [this](int64_t schema_id) -> Result<std::shared_ptr<TableSchemaImpl>> {
         if (schema_id == table_schema_->Id()) {
             return table_schema_;
         }
@@ -149,8 +149,9 @@ Result<bool> DataEvolutionFileStoreScan::FilterByStatsWithSameRowId(
 
 Result<std::pair<int64_t, SimpleStatsEvolution::EvolutionStats>>
 DataEvolutionFileStoreScan::EvolutionStats(
-    const std::vector<ManifestEntry>& old_entries, const std::shared_ptr<TableSchema>& table_schema,
-    const std::function<Result<std::shared_ptr<TableSchema>>(int64_t)>& schema_fetcher) {
+    const std::vector<ManifestEntry>& old_entries,
+    const std::shared_ptr<TableSchemaImpl>& table_schema,
+    const std::function<Result<std::shared_ptr<TableSchemaImpl>>(int64_t)>& schema_fetcher) {
     // exclude blob files, useless for predicate eval
     std::vector<ManifestEntry> entries;
     entries.reserve(old_entries.size());
@@ -178,7 +179,7 @@ DataEvolutionFileStoreScan::EvolutionStats(
 
     for (int32_t entry_idx = 0; entry_idx < static_cast<int32_t>(entries.size()); entry_idx++) {
         const auto& file_meta = entries[entry_idx].File();
-        PAIMON_ASSIGN_OR_RAISE(std::shared_ptr<TableSchema> data_schema,
+        PAIMON_ASSIGN_OR_RAISE(std::shared_ptr<TableSchemaImpl> data_schema,
                                schema_fetcher(file_meta->schema_id));
 
         PAIMON_ASSIGN_OR_RAISE(

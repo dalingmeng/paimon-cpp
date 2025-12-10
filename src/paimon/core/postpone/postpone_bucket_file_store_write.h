@@ -22,7 +22,7 @@
 #include "paimon/core/operation/abstract_file_store_write.h"
 #include "paimon/core/operation/file_store_scan.h"
 #include "paimon/core/postpone/postpone_bucket_writer.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/table/bucket_mode.h"
 #include "paimon/core/utils/file_store_path_factory.h"
 #include "paimon/format/file_format.h"
@@ -34,7 +34,7 @@ class PostponeBucketFileStoreWrite : public AbstractFileStoreWrite {
     static Result<std::unique_ptr<PostponeBucketFileStoreWrite>> Create(
         const std::shared_ptr<SnapshotManager>& snapshot_manager,
         const std::shared_ptr<SchemaManager>& schema_manager, const std::string& commit_user,
-        const std::string& root_path, const std::shared_ptr<TableSchema>& table_schema,
+        const std::string& root_path, const std::shared_ptr<TableSchemaImpl>& table_schema,
         const std::shared_ptr<arrow::Schema>& schema,
         const std::shared_ptr<arrow::Schema>& partition_schema, const CoreOptions& options,
         bool is_streaming_mode, bool ignore_num_bucket_check,
@@ -85,7 +85,7 @@ class PostponeBucketFileStoreWrite : public AbstractFileStoreWrite {
         const std::shared_ptr<FileStorePathFactory>& file_store_path_factory,
         const std::shared_ptr<SnapshotManager>& snapshot_manager,
         const std::shared_ptr<SchemaManager>& schema_manager, const std::string& commit_user,
-        const std::string& root_path, const std::shared_ptr<TableSchema>& table_schema,
+        const std::string& root_path, const std::shared_ptr<TableSchemaImpl>& table_schema,
         const std::shared_ptr<arrow::Schema>& schema,
         const std::shared_ptr<arrow::Schema>& partition_schema, const CoreOptions& options,
         bool ignore_previous_files, bool is_streaming_mode, bool ignore_num_bucket_check,

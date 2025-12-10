@@ -33,7 +33,7 @@
 #include "paimon/core/io/file_index_evaluator.h"
 #include "paimon/core/operation/internal_read_context.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/table/source/data_split_impl.h"
 #include "paimon/core/utils/file_store_path_factory.h"
 #include "paimon/file_index/bitmap_index_result.h"

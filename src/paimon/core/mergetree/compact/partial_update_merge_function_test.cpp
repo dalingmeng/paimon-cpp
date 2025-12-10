@@ -29,7 +29,7 @@
 #include "paimon/core/mergetree/compact/aggregate/field_min_agg.h"
 #include "paimon/core/mergetree/compact/aggregate/field_primary_key_agg.h"
 #include "paimon/core/mergetree/compact/aggregate/field_sum_agg.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/defs.h"
 #include "paimon/memory/memory_pool.h"
 #include "paimon/testing/utils/binary_row_generator.h"
@@ -105,7 +105,7 @@ class PartialUpdateMergeFunctionTest : public testing::Test {
         const std::vector<DataField>& table_fields, const std::vector<DataField>& value_fields,
         const std::map<std::string, std::string>& options_map,
         const std::vector<DataField>& expected_completed_value_fields) {
-        TableSchema table_schema;
+        TableSchemaImpl table_schema;
         table_schema.fields_ = table_fields;
 
         std::vector<DataField> copy_value_fields = value_fields;

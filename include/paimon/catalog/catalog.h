@@ -18,11 +18,13 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
 #include "paimon/catalog/identifier.h"
 #include "paimon/result.h"
+#include "paimon/schema/table_schema.h"
 #include "paimon/status.h"
 #include "paimon/type_fwd.h"
 #include "paimon/visibility.h"
@@ -93,6 +95,16 @@ class PAIMON_EXPORT Catalog {
     /// @return A result containing a vector of table names in the specified database, or an error
     /// status.
     virtual Result<std::vector<std::string>> ListTables(const std::string& db_name) const = 0;
+
+    /// Loads the schema of a specified table.
+    ///
+    /// @note System tables will not be supported.
+    ///
+    /// @param identifier The identifier (database and table name) of the table to load.
+    /// @return A result containing table schema if the table exists, or std::nullopt if it
+    /// doesn't, or an error status on failure.
+    virtual Result<std::optional<std::shared_ptr<TableSchema>>> LoadTableSchema(
+        const Identifier& identifier) const = 0;
 };
 
 }  // namespace paimon

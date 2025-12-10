@@ -30,7 +30,7 @@
 #include "paimon/core/operation/expire_snapshots.h"
 #include "paimon/core/operation/file_store_commit_impl.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/utils/field_mapping.h"
 #include "paimon/core/utils/file_store_path_factory.h"
 #include "paimon/core/utils/snapshot_manager.h"
@@ -59,7 +59,7 @@ Result<std::unique_ptr<FileStoreCommit>> FileStoreCommit::Create(
     PAIMON_ASSIGN_OR_RAISE(auto tmp_options, CoreOptions::FromMap(ctx->GetOptions()));
     const std::string& root_path = ctx->GetRootPath();
     auto schema_manager = std::make_shared<SchemaManager>(tmp_options.GetFileSystem(), root_path);
-    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchema>> table_schema,
+    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchemaImpl>> table_schema,
                            schema_manager->Latest());
     if (table_schema == std::nullopt) {
         return Status::Invalid("not found latest schema");

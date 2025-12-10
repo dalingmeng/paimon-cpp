@@ -38,7 +38,7 @@ class Schema;
 struct ArrowSchema;
 
 namespace paimon {
-class TableSchema;
+class TableSchemaImpl;
 
 FileSystemCatalog::FileSystemCatalog(const std::shared_ptr<FileSystem>& fs,
                                      const std::string& warehouse)
@@ -209,6 +209,20 @@ Result<bool> FileSystemCatalog::TableExistsInFileSystem(const std::string& table
         PAIMON_ASSIGN_OR_RAISE(auto schema_ids, schema_manager.ListAllIds());
         return !schema_ids.empty();
     }
+}
+
+Result<std::optional<std::shared_ptr<TableSchema>>> FileSystemCatalog::LoadTableSchema(
+    const Identifier& identifier) const {
+    if (IsSystemTable(identifier)) {
+        return Status::NotImplemented("do not support loading schema for system table.");
+    }
+    SchemaManager schema_manager(fs_, NewDataTablePath(warehouse_, identifier));
+    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchemaImpl>> latest_schema,
+                           schema_manager.Latest());
+    if (latest_schema) {
+        return std::optional<std::shared_ptr<TableSchema>>(*latest_schema);
+    }
+    return std::optional<std::shared_ptr<TableSchema>>();
 }
 
 }  // namespace paimon

@@ -37,7 +37,7 @@ Result<std::unique_ptr<GlobalIndexScan>> GlobalIndexScan::Create(
         CoreOptions tmp_options,
         CoreOptions::FromMap(options, /*fs_scheme_to_identifier_map=*/{}, file_system));
     SchemaManager schema_manager(tmp_options.GetFileSystem(), root_path);
-    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchema>> latest_table_schema,
+    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchemaImpl>> latest_table_schema,
                            schema_manager.Latest());
     if (latest_table_schema == std::nullopt) {
         return Status::Invalid("not found latest schema");

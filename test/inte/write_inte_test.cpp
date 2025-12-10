@@ -101,7 +101,7 @@
 #include "paimon/write_context.h"
 namespace paimon {
 class CommitMessage;
-class TableSchema;
+class TableSchemaImpl;
 }  // namespace paimon
 
 namespace paimon::test {
@@ -545,7 +545,7 @@ TEST_P(WriteInteTest, TestAppendTableStreamWriteWithPartitionAndMultiBuckets) {
         auto helper, TestHelper::Create(dir->Str(), schema, partition_keys, primary_keys, options,
                                         /*is_streaming_mode=*/true));
     int64_t commit_identifier = 0;
-    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchema>> table_schema,
+    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchemaImpl>> table_schema,
                          helper->LatestSchema());
     ASSERT_TRUE(table_schema);
 
@@ -864,7 +864,7 @@ TEST_P(WriteInteTest, TestPkTableStreamWrite) {
         auto helper, TestHelper::Create(dir->Str(), schema, partition_keys, primary_keys, options,
                                         /*is_streaming_mode=*/true));
     int64_t commit_identifier = 0;
-    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchema>> table_schema,
+    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchemaImpl>> table_schema,
                          helper->LatestSchema());
     ASSERT_TRUE(table_schema);
 
@@ -1126,7 +1126,7 @@ TEST_P(WriteInteTest, TestPkTableBatchWrite) {
         auto helper, TestHelper::Create(dir->Str(), schema, partition_keys, primary_keys, options,
                                         /*is_streaming_mode=*/false));
     int64_t commit_identifier = 0;
-    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchema>> table_schema,
+    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchemaImpl>> table_schema,
                          helper->LatestSchema());
     ASSERT_TRUE(table_schema);
 
@@ -1281,7 +1281,7 @@ TEST_P(WriteInteTest, TestPkTableWriteWithNoPartitionKey) {
         auto helper, TestHelper::Create(dir->Str(), schema, partition_keys, primary_keys, options,
                                         /*is_streaming_mode=*/true));
     int64_t commit_identifier = 0;
-    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchema>> table_schema,
+    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchemaImpl>> table_schema,
                          helper->LatestSchema());
     ASSERT_TRUE(table_schema);
 
@@ -1729,7 +1729,7 @@ TEST_P(WriteInteTest, TestPkTableForceLookup) {
         auto helper, TestHelper::Create(dir->Str(), schema, partition_keys, primary_keys, options,
                                         /*is_streaming_mode=*/true));
     int64_t commit_identifier = 0;
-    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchema>> table_schema,
+    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchemaImpl>> table_schema,
                          helper->LatestSchema());
     ASSERT_TRUE(table_schema);
 
@@ -1795,7 +1795,7 @@ TEST_P(WriteInteTest, TestPkTableEnableDeletionVector) {
         auto helper, TestHelper::Create(dir->Str(), schema, partition_keys, primary_keys, options,
                                         /*is_streaming_mode=*/true));
     int64_t commit_identifier = 0;
-    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchema>> table_schema,
+    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchemaImpl>> table_schema,
                          helper->LatestSchema());
     ASSERT_TRUE(table_schema);
 
@@ -1867,7 +1867,7 @@ TEST_P(WriteInteTest, TestPkTableWriteWithIOException) {
         SchemaManager schema_manger(file_system_, root_path);
         auto table_schema_result = schema_manger.ReadSchema(/*schema_id=*/0);
         CHECK_HOOK_STATUS(table_schema_result.status(), i);
-        std::shared_ptr<TableSchema> table_schema = table_schema_result.value();
+        std::shared_ptr<TableSchemaImpl> table_schema = table_schema_result.value();
 
         // prepare data
         DataGenerator gen(table_schema, pool_);
@@ -3318,7 +3318,7 @@ TEST_P(WriteInteTest, TestPkTablePostponeBucket) {
                                                          primary_keys, options,
                                                          /*is_streaming_mode=*/false));
     int64_t commit_identifier = 0;
-    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchema>> table_schema,
+    ASSERT_OK_AND_ASSIGN(std::optional<std::shared_ptr<TableSchemaImpl>> table_schema,
                          helper->LatestSchema());
     ASSERT_TRUE(table_schema);
 

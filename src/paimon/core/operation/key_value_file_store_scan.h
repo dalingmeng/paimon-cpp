@@ -41,7 +41,7 @@ class PredicateFilter;
 class ScanFilter;
 class SchemaManager;
 class SnapshotManager;
-class TableSchema;
+class TableSchemaImpl;
 
 /// `FileStoreScan` for `KeyValueFileStore`.
 class KeyValueFileStoreScan : public FileStoreScan {
@@ -51,7 +51,7 @@ class KeyValueFileStoreScan : public FileStoreScan {
         const std::shared_ptr<SchemaManager>& schema_manager,
         const std::shared_ptr<ManifestList>& manifest_list,
         const std::shared_ptr<ManifestFile>& manifest_file,
-        const std::shared_ptr<TableSchema>& table_schema,
+        const std::shared_ptr<TableSchemaImpl>& table_schema,
         const std::shared_ptr<arrow::Schema>& arrow_schema,
         const std::shared_ptr<ScanFilter>& scan_filters, const CoreOptions& core_options,
         const std::shared_ptr<Executor>& executor, const std::shared_ptr<MemoryPool>& pool);
@@ -101,7 +101,7 @@ class KeyValueFileStoreScan : public FileStoreScan {
                           const std::shared_ptr<SchemaManager>& schema_manager,
                           const std::shared_ptr<ManifestList>& manifest_list,
                           const std::shared_ptr<ManifestFile>& manifest_file,
-                          const std::shared_ptr<TableSchema>& table_schema,
+                          const std::shared_ptr<TableSchemaImpl>& table_schema,
                           const std::shared_ptr<arrow::Schema>& schema,
                           const CoreOptions& core_options,
                           const std::shared_ptr<Executor>& executor,

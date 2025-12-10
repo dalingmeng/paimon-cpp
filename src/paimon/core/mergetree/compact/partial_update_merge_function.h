@@ -32,7 +32,7 @@
 #include "paimon/core/key_value.h"
 #include "paimon/core/mergetree/compact/aggregate/field_aggregator.h"
 #include "paimon/core/mergetree/compact/merge_function.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/utils/fields_comparator.h"
 #include "paimon/result.h"
 #include "paimon/status.h"
@@ -44,7 +44,7 @@ class Schema;
 namespace paimon {
 class CoreOptions;
 class DataField;
-class TableSchema;
+class TableSchemaImpl;
 
 /// A `MergeFunction` where key is primary key (unique) and value is the partial record, update
 /// non-null fields on merge.
@@ -56,7 +56,7 @@ class PartialUpdateMergeFunction : public MergeFunction {
         std::set<std::string>* seq_group_key_set);
 
     static Status CompleteSequenceGroupFields(
-        const TableSchema& table_schema,
+        const TableSchemaImpl& table_schema,
         const std::map<std::string, std::vector<std::string>>& value_field_to_seq_group_field,
         std::vector<DataField>* value_fields);
 

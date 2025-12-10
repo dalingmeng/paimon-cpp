@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#include "paimon/core/schema/table_schema.h"
-
 #include <utility>
 
 #include "arrow/api.h"
@@ -23,6 +21,7 @@
 #include "gtest/gtest.h"
 #include "paimon/common/utils/date_time_utils.h"
 #include "paimon/common/utils/string_utils.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/fs/local/local_file_system.h"
 #include "paimon/status.h"
 #include "paimon/testing/utils/testharness.h"
@@ -81,7 +80,7 @@ TEST_F(TableSchemaTest, TestCreateWithAllFieldsNotHaveFieldId) {
     std::map<std::string, std::string> options;
     ASSERT_OK_AND_ASSIGN(
         auto table_schema,
-        TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
     ASSERT_TRUE(table_schema);
 
     std::vector<DataField> expected_data_fields = {
@@ -116,7 +115,7 @@ TEST_F(TableSchemaTest, TestCreateWithAllFieldsHaveFieldId) {
     std::map<std::string, std::string> options;
     ASSERT_OK_AND_ASSIGN(
         auto table_schema,
-        TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
     ASSERT_TRUE(table_schema);
 
     std::vector<DataField> expected_data_fields = {
@@ -141,7 +140,8 @@ TEST_F(TableSchemaTest, TestInvalidCreate) {
     std::vector<std::string> partition_keys = {"sub1", "sub2"};
     std::vector<std::string> primary_keys = {"sub3", "sub4"};
     std::map<std::string, std::string> options;
-    ASSERT_NOK(TableSchema::Create(/*schema_id=*/1, schema, partition_keys, primary_keys, options));
+    ASSERT_NOK(
+        TableSchemaImpl::Create(/*schema_id=*/1, schema, partition_keys, primary_keys, options));
 }
 
 TEST_F(TableSchemaTest, TestDeserializeAppendTableSchema) {
@@ -151,9 +151,9 @@ TEST_F(TableSchemaTest, TestDeserializeAppendTableSchema) {
     std::string content;
     ASSERT_OK(fs->ReadFile(path, &content));
 
-    ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchema> result_schema,
-                         TableSchema::CreateFromJson(content));
-    TableSchema expected_schema;
+    ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchemaImpl> result_schema,
+                         TableSchemaImpl::CreateFromJson(content));
+    TableSchemaImpl expected_schema;
     expected_schema.version_ = 3;
     expected_schema.id_ = 0;
 
@@ -188,9 +188,9 @@ TEST_F(TableSchemaTest, TestDeserializePkTableSchema) {
     std::string content;
     ASSERT_OK(fs->ReadFile(path, &content));
 
-    ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchema> result_schema,
-                         TableSchema::CreateFromJson(content));
-    TableSchema expected_schema;
+    ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchemaImpl> result_schema,
+                         TableSchemaImpl::CreateFromJson(content));
+    TableSchemaImpl expected_schema;
     expected_schema.version_ = 3;
     expected_schema.id_ = 0;
 
@@ -229,9 +229,9 @@ TEST_F(TableSchemaTest, TestDeserializeAppendTableSchemaWithTimestamp) {
     std::string content;
     ASSERT_OK(fs->ReadFile(path, &content));
 
-    ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchema> result_schema,
-                         TableSchema::CreateFromJson(content));
-    TableSchema expected_schema;
+    ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchemaImpl> result_schema,
+                         TableSchemaImpl::CreateFromJson(content));
+    TableSchemaImpl expected_schema;
     expected_schema.version_ = 3;
     expected_schema.id_ = 0;
 
@@ -275,9 +275,9 @@ TEST_F(TableSchemaTest, TestDeserializeWithNestedDataType) {
     std::string content;
     ASSERT_OK(fs->ReadFile(path, &content));
 
-    ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchema> result_schema,
-                         TableSchema::CreateFromJson(content));
-    TableSchema expected_schema;
+    ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchemaImpl> result_schema,
+                         TableSchemaImpl::CreateFromJson(content));
+    TableSchemaImpl expected_schema;
     expected_schema.version_ = 3;
     expected_schema.id_ = 0;
 
@@ -331,8 +331,8 @@ TEST_F(TableSchemaTest, TestEmptyBucketKey) {
         },
         "timeMillis" : 1721614341162
     })";
-        ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchema> schema_result,
-                             TableSchema::CreateFromJson(table_schema_str));
+        ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchemaImpl> schema_result,
+                             TableSchemaImpl::CreateFromJson(table_schema_str));
         ASSERT_EQ(std::vector<std::string>({"f2"}), schema_result->bucket_keys_);
     }
     {
@@ -366,8 +366,8 @@ TEST_F(TableSchemaTest, TestEmptyBucketKey) {
         },
         "timeMillis" : 1721614341162
     })";
-        ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchema> schema_result,
-                             TableSchema::CreateFromJson(table_schema_str));
+        ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchemaImpl> schema_result,
+                             TableSchemaImpl::CreateFromJson(table_schema_str));
         ASSERT_EQ(std::vector<std::string>({"f2"}), schema_result->bucket_keys_);
     }
 }
@@ -379,10 +379,10 @@ TEST_F(TableSchemaTest, TestToJson) {
     auto field4 = DataField(3, arrow::field("f3", arrow::float64()));
     auto data_fields = {field1, field2, field3, field4};
     auto arrow_schema = DataField::ConvertDataFieldsToArrowSchema(data_fields);
-    ASSERT_OK_AND_ASSIGN(
-        auto schema, TableSchema::Create(/*schema_id=*/0, arrow_schema, /*partition_keys=*/{"f1"},
-                                         /*primary_keys=*/{},
-                                         {{"manifest.format", "orc"}, {"file.format", "orc"}}));
+    ASSERT_OK_AND_ASSIGN(auto schema, TableSchemaImpl::Create(
+                                          /*schema_id=*/0, arrow_schema, /*partition_keys=*/{"f1"},
+                                          /*primary_keys=*/{},
+                                          {{"manifest.format", "orc"}, {"file.format", "orc"}}));
     schema->time_millis_ = 1721614341162;
     ASSERT_OK_AND_ASSIGN(std::string json_str, schema->ToJsonString());
     std::string table_schema_str = R"({
@@ -455,8 +455,8 @@ TEST_F(TableSchemaTest, TestToJson2) {
         },
         "timeMillis" : 1721614341162
     })";
-    ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchema> schema_result,
-                         TableSchema::CreateFromJson(table_schema_str));
+    ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchemaImpl> schema_result,
+                         TableSchemaImpl::CreateFromJson(table_schema_str));
     ASSERT_OK_AND_ASSIGN(std::string json_str, schema_result->ToJsonString());
     ASSERT_EQ(ReplaceAll(table_schema_str), ReplaceAll(json_str));
 }
@@ -470,7 +470,8 @@ TEST_F(TableSchemaTest, TestToJson3) {
     std::string content;
     ASSERT_OK(fs->ReadFile(path, &content));
 
-    ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchema> st, TableSchema::CreateFromJson(content));
+    ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchemaImpl> st,
+                         TableSchemaImpl::CreateFromJson(content));
     ASSERT_OK_AND_ASSIGN(std::string json_str, st->ToJsonString());
     std::string expected_str = R"==({
     "version": 3,
@@ -555,8 +556,8 @@ TEST_F(TableSchemaTest, TestToJsonWithNestedField0) {
                         DataField(7, arrow::field("f6", arrow::decimal128(2, 2)))};
 
     auto arrow_schema = DataField::ConvertDataFieldsToArrowSchema(data_fields);
-    ASSERT_OK_AND_ASSIGN(auto schema,
-                         TableSchema::Create(/*schema_id=*/0, arrow_schema, /*partition_keys=*/{},
+    ASSERT_OK_AND_ASSIGN(
+        auto schema, TableSchemaImpl::Create(/*schema_id=*/0, arrow_schema, /*partition_keys=*/{},
                                              /*primary_keys=*/{},
                                              {{"manifest.format", "orc"}, {"file.format", "orc"}}));
 
@@ -638,7 +639,8 @@ TEST_F(TableSchemaTest, TestToJsonWithNestedField1) {
     std::string content;
     ASSERT_OK(fs->ReadFile(path, &content));
 
-    ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchema> st, TableSchema::CreateFromJson(content));
+    ASSERT_OK_AND_ASSIGN(std::unique_ptr<TableSchemaImpl> st,
+                         TableSchemaImpl::CreateFromJson(content));
     ASSERT_OK_AND_ASSIGN(std::string json_str, st->ToJsonString());
     std::string expected_str = R"==({
     "version": 3,
@@ -807,8 +809,8 @@ TEST_F(TableSchemaTest, TestToJsonWithNestedField1) {
     auto arrow_schema = arrow::schema(fields);
     ASSERT_OK_AND_ASSIGN(
         auto new_table_schema,
-        TableSchema::Create(0, arrow_schema, /*partition_keys=*/{}, /*primary_keys=*/{},
-                            /*options=*/{{"file.format", "orc"}, {"manifest.format", "orc"}}));
+        TableSchemaImpl::Create(0, arrow_schema, /*partition_keys=*/{}, /*primary_keys=*/{},
+                                /*options=*/{{"file.format", "orc"}, {"manifest.format", "orc"}}));
     new_table_schema->time_millis_ = 1729759141146;
     ASSERT_OK_AND_ASSIGN(std::string new_json_str, new_table_schema->ToJsonString());
     ASSERT_EQ(expected_str, new_json_str) << new_json_str;
@@ -848,7 +850,7 @@ TEST_F(TableSchemaTest, TestInvalidSchema) {
         },
         "timeMillis" : 1721614341162
     })";
-        ASSERT_NOK_WITH_MSG(TableSchema::CreateFromJson(table_schema_str),
+        ASSERT_NOK_WITH_MSG(TableSchemaImpl::CreateFromJson(table_schema_str),
                             "this will result in only one record in a partition");
     }
     {
@@ -884,7 +886,7 @@ TEST_F(TableSchemaTest, TestInvalidSchema) {
         },
         "timeMillis" : 1721614341162
     })";
-        ASSERT_NOK_WITH_MSG(TableSchema::CreateFromJson(table_schema_str),
+        ASSERT_NOK_WITH_MSG(TableSchemaImpl::CreateFromJson(table_schema_str),
                             "should contain all bucket keys");
     }
     {
@@ -920,7 +922,7 @@ TEST_F(TableSchemaTest, TestInvalidSchema) {
         },
         "timeMillis" : 1721614341162
     })";
-        ASSERT_NOK_WITH_MSG(TableSchema::CreateFromJson(table_schema_str),
+        ASSERT_NOK_WITH_MSG(TableSchemaImpl::CreateFromJson(table_schema_str),
                             "should not in partition keys");
     }
     {
@@ -956,7 +958,7 @@ TEST_F(TableSchemaTest, TestInvalidSchema) {
         },
         "timeMillis" : 1721614341162
     })";
-        ASSERT_NOK_WITH_MSG(TableSchema::CreateFromJson(table_schema_str),
+        ASSERT_NOK_WITH_MSG(TableSchemaImpl::CreateFromJson(table_schema_str),
                             "should contain all bucket keys");
     }
 }
@@ -967,7 +969,7 @@ TEST_F(TableSchemaTest, SetFieldIdBasicType) {
         int32_t field_id = 0;
         ASSERT_OK_AND_ASSIGN(
             std::shared_ptr<arrow::Field> new_field,
-            TableSchema::AssignFieldIdsRecursively(field, /*set_field_id=*/true, &field_id));
+            TableSchemaImpl::AssignFieldIdsRecursively(field, /*set_field_id=*/true, &field_id));
         ASSERT_TRUE(new_field->metadata());
         ASSERT_EQ(new_field->metadata()->Get(DataField::FIELD_ID).ValueOrDie(), "0");
         ASSERT_EQ(field_id, 1);
@@ -976,7 +978,7 @@ TEST_F(TableSchemaTest, SetFieldIdBasicType) {
         int32_t field_id = 0;
         ASSERT_OK_AND_ASSIGN(
             std::shared_ptr<arrow::Field> new_field,
-            TableSchema::AssignFieldIdsRecursively(field, /*set_field_id=*/false, &field_id));
+            TableSchemaImpl::AssignFieldIdsRecursively(field, /*set_field_id=*/false, &field_id));
         ASSERT_FALSE(new_field->metadata());
         ASSERT_EQ(field_id, 0);
     }
@@ -988,9 +990,9 @@ TEST_F(TableSchemaTest, SetFieldIdStructType) {
     auto struct_field = arrow::field("parent", arrow::struct_({child1, child2}));
     {
         int32_t field_id = 0;
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<arrow::Field> new_field,
-            TableSchema::AssignFieldIdsRecursively(struct_field, /*set_field_id=*/true, &field_id));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<arrow::Field> new_field,
+                             TableSchemaImpl::AssignFieldIdsRecursively(
+                                 struct_field, /*set_field_id=*/true, &field_id));
         auto struct_type = std::static_pointer_cast<arrow::StructType>(new_field->type());
         ASSERT_EQ(struct_type->num_fields(), 2);
         ASSERT_EQ(new_field->metadata()->Get(DataField::FIELD_ID).ValueOrDie(), "0");
@@ -1001,7 +1003,7 @@ TEST_F(TableSchemaTest, SetFieldIdStructType) {
     {
         int32_t field_id = 0;
         ASSERT_OK_AND_ASSIGN(std::shared_ptr<arrow::Field> new_field,
-                             TableSchema::AssignFieldIdsRecursively(
+                             TableSchemaImpl::AssignFieldIdsRecursively(
                                  struct_field, /*set_field_id=*/false, &field_id));
         auto struct_type = std::static_pointer_cast<arrow::StructType>(new_field->type());
         ASSERT_EQ(struct_type->num_fields(), 2);
@@ -1017,9 +1019,9 @@ TEST_F(TableSchemaTest, SetFieldIdListType) {
     auto list_field = arrow::field("list_column", arrow::list(value_field));
     {
         int32_t field_id = 0;
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<arrow::Field> new_field,
-            TableSchema::AssignFieldIdsRecursively(list_field, /*set_field_id=*/true, &field_id));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<arrow::Field> new_field,
+                             TableSchemaImpl::AssignFieldIdsRecursively(
+                                 list_field, /*set_field_id=*/true, &field_id));
         ASSERT_EQ(new_field->metadata()->Get(DataField::FIELD_ID).ValueOrDie(), "0");
         auto list_type = arrow::internal::checked_pointer_cast<arrow::ListType>(new_field->type());
         ASSERT_FALSE(list_type->value_field()->metadata());
@@ -1027,9 +1029,9 @@ TEST_F(TableSchemaTest, SetFieldIdListType) {
     }
     {
         int32_t field_id = 0;
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<arrow::Field> new_field,
-            TableSchema::AssignFieldIdsRecursively(list_field, /*set_field_id=*/false, &field_id));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<arrow::Field> new_field,
+                             TableSchemaImpl::AssignFieldIdsRecursively(
+                                 list_field, /*set_field_id=*/false, &field_id));
         ASSERT_FALSE(new_field->metadata());
         auto list_type = arrow::internal::checked_pointer_cast<arrow::ListType>(new_field->type());
         ASSERT_FALSE(list_type->value_field()->metadata());
@@ -1041,9 +1043,9 @@ TEST_F(TableSchemaTest, SetFieldIdMapType) {
     auto map_field = arrow::field("map_column", arrow::map(arrow::utf8(), arrow::int32()));
     {
         int32_t field_id = 0;
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<arrow::Field> new_field,
-            TableSchema::AssignFieldIdsRecursively(map_field, /*set_field_id=*/true, &field_id));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<arrow::Field> new_field,
+                             TableSchemaImpl::AssignFieldIdsRecursively(
+                                 map_field, /*set_field_id=*/true, &field_id));
         ASSERT_EQ(new_field->metadata()->Get(DataField::FIELD_ID).ValueOrDie(), "0");
         auto map_type = arrow::internal::checked_pointer_cast<arrow::MapType>(new_field->type());
         std::shared_ptr<arrow::Field> key_field = map_type->key_field();
@@ -1054,9 +1056,9 @@ TEST_F(TableSchemaTest, SetFieldIdMapType) {
     }
     {
         int32_t field_id = 0;
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<arrow::Field> new_field,
-            TableSchema::AssignFieldIdsRecursively(map_field, /*set_field_id=*/false, &field_id));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<arrow::Field> new_field,
+                             TableSchemaImpl::AssignFieldIdsRecursively(
+                                 map_field, /*set_field_id=*/false, &field_id));
         ASSERT_FALSE(new_field->metadata());
         auto map_type = arrow::internal::checked_pointer_cast<arrow::MapType>(new_field->type());
         std::shared_ptr<arrow::Field> key_field = map_type->key_field();
@@ -1075,9 +1077,9 @@ TEST_F(TableSchemaTest, SetFieldIdMapWithStruct) {
                                               arrow::struct_({inner_child1, inner_child2})));
     {
         int32_t field_id = 0;
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<arrow::Field> new_field,
-            TableSchema::AssignFieldIdsRecursively(map_field, /*set_field_id=*/true, &field_id));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<arrow::Field> new_field,
+                             TableSchemaImpl::AssignFieldIdsRecursively(
+                                 map_field, /*set_field_id=*/true, &field_id));
         ASSERT_EQ(new_field->metadata()->Get(DataField::FIELD_ID).ValueOrDie(), "0");
         auto map_type = arrow::internal::checked_pointer_cast<arrow::MapType>(new_field->type());
         std::shared_ptr<arrow::Field> key_field = map_type->key_field();
@@ -1096,9 +1098,9 @@ TEST_F(TableSchemaTest, SetFieldIdMapWithStruct) {
     }
     {
         int32_t field_id = 0;
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<arrow::Field> new_field,
-            TableSchema::AssignFieldIdsRecursively(map_field, /*set_field_id=*/false, &field_id));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<arrow::Field> new_field,
+                             TableSchemaImpl::AssignFieldIdsRecursively(
+                                 map_field, /*set_field_id=*/false, &field_id));
         ASSERT_FALSE(new_field->metadata());
         auto map_type = arrow::internal::checked_pointer_cast<arrow::MapType>(new_field->type());
         std::shared_ptr<arrow::Field> key_field = map_type->key_field();
@@ -1124,9 +1126,9 @@ TEST_F(TableSchemaTest, SetFieldIdNestedStruct) {
     auto outer_struct = arrow::field("outer_struct", arrow::struct_({inner_struct}));
     {
         int32_t field_id = 0;
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<arrow::Field> new_field,
-            TableSchema::AssignFieldIdsRecursively(outer_struct, /*set_field_id=*/true, &field_id));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<arrow::Field> new_field,
+                             TableSchemaImpl::AssignFieldIdsRecursively(
+                                 outer_struct, /*set_field_id=*/true, &field_id));
         ASSERT_EQ(new_field->metadata()->Get(DataField::FIELD_ID).ValueOrDie(), "0");
         auto outer_type = std::static_pointer_cast<arrow::StructType>(new_field->type());
         ASSERT_EQ(outer_type->field(0)->metadata()->Get(DataField::FIELD_ID).ValueOrDie(), "1");
@@ -1138,7 +1140,7 @@ TEST_F(TableSchemaTest, SetFieldIdNestedStruct) {
     {
         int32_t field_id = 0;
         ASSERT_OK_AND_ASSIGN(std::shared_ptr<arrow::Field> new_field,
-                             TableSchema::AssignFieldIdsRecursively(
+                             TableSchemaImpl::AssignFieldIdsRecursively(
                                  outer_struct, /*set_field_id=*/false, &field_id));
         ASSERT_FALSE(new_field->metadata());
         auto outer_type = std::static_pointer_cast<arrow::StructType>(new_field->type());
@@ -1156,9 +1158,9 @@ TEST_F(TableSchemaTest, SetFieldIdNestedListInStruct) {
     auto struct_field = arrow::field("struct_with_list", arrow::struct_({list_field}));
     {
         int32_t field_id = 0;
-        ASSERT_OK_AND_ASSIGN(
-            std::shared_ptr<arrow::Field> new_field,
-            TableSchema::AssignFieldIdsRecursively(struct_field, /*set_field_id=*/true, &field_id));
+        ASSERT_OK_AND_ASSIGN(std::shared_ptr<arrow::Field> new_field,
+                             TableSchemaImpl::AssignFieldIdsRecursively(
+                                 struct_field, /*set_field_id=*/true, &field_id));
         auto struct_type = std::static_pointer_cast<arrow::StructType>(new_field->type());
         ASSERT_EQ(new_field->metadata()->Get(DataField::FIELD_ID).ValueOrDie(), "0");
         ASSERT_EQ(struct_type->field(0)->metadata()->Get(DataField::FIELD_ID).ValueOrDie(), "1");
@@ -1170,7 +1172,7 @@ TEST_F(TableSchemaTest, SetFieldIdNestedListInStruct) {
     {
         int32_t field_id = 0;
         ASSERT_OK_AND_ASSIGN(std::shared_ptr<arrow::Field> new_field,
-                             TableSchema::AssignFieldIdsRecursively(
+                             TableSchemaImpl::AssignFieldIdsRecursively(
                                  struct_field, /*set_field_id=*/false, &field_id));
         auto struct_type = std::static_pointer_cast<arrow::StructType>(new_field->type());
         ASSERT_FALSE(new_field->metadata());
@@ -1193,7 +1195,7 @@ TEST_F(TableSchemaTest, CrossPartitionUpdate) {
     std::map<std::string, std::string> options;
     ASSERT_OK_AND_ASSIGN(
         auto table_schema,
-        TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
     ASSERT_TRUE(table_schema);
     ASSERT_TRUE(table_schema->CrossPartitionUpdate());
 }
@@ -1209,7 +1211,7 @@ TEST_F(TableSchemaTest, CrossPartitionUpdate2) {
     std::map<std::string, std::string> options;
     ASSERT_OK_AND_ASSIGN(
         auto table_schema,
-        TableSchema::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
+        TableSchemaImpl::Create(/*schema_id=*/0, schema, partition_keys, primary_keys, options));
     ASSERT_TRUE(table_schema);
     ASSERT_FALSE(table_schema->CrossPartitionUpdate());
 }

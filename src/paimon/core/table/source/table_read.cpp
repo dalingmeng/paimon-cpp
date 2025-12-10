@@ -29,7 +29,7 @@
 #include "paimon/core/core_options.h"
 #include "paimon/core/operation/internal_read_context.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/table/source/append_only_table_read.h"
 #include "paimon/core/table/source/fallback_table_read.h"
 #include "paimon/core/table/source/key_value_table_read.h"
@@ -49,17 +49,17 @@ namespace {
 Result<std::unique_ptr<InternalReadContext>> CreateInternalReadContext(
     const std::shared_ptr<ReadContext>& context, const std::string& branch) {
     std::map<std::string, std::string> tmp_options = context->GetOptions();
-    std::shared_ptr<TableSchema> table_schema;
+    std::shared_ptr<TableSchemaImpl> table_schema;
     const auto& specific_table_schema = context->GetSpecificTableSchema();
     if (branch == BranchManager::DEFAULT_MAIN_BRANCH && specific_table_schema) {
         PAIMON_ASSIGN_OR_RAISE(table_schema,
-                               TableSchema::CreateFromJson(specific_table_schema.value()));
+                               TableSchemaImpl::CreateFromJson(specific_table_schema.value()));
     } else {
         PAIMON_ASSIGN_OR_RAISE(
             CoreOptions tmp_core_options,
             CoreOptions::FromMap(tmp_options, context->GetFileSystemSchemeToIdentifierMap()));
         SchemaManager schema_manager(tmp_core_options.GetFileSystem(), context->GetPath(), branch);
-        PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchema>> latest_schema,
+        PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchemaImpl>> latest_schema,
                                schema_manager.Latest());
         if (!latest_schema) {
             return Status::Invalid(fmt::format("schema file not found in path {}, branch {}",

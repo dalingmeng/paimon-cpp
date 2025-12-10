@@ -26,7 +26,7 @@
 #include "paimon/common/data/binary_row.h"
 #include "paimon/common/data/binary_row_writer.h"
 #include "paimon/common/types/data_field.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/memory/memory_pool.h"
 #include "paimon/record_batch.h"
 #include "paimon/result.h"
@@ -38,14 +38,14 @@ class DataType;
 namespace paimon {
 class BinaryRowWriter;
 class MemoryPool;
-class TableSchema;
+class TableSchemaImpl;
 }  // namespace paimon
 
 namespace paimon::test {
 
 class DataGenerator {
  public:
-    DataGenerator(const std::shared_ptr<TableSchema>& table_schema,
+    DataGenerator(const std::shared_ptr<TableSchemaImpl>& table_schema,
                   const std::shared_ptr<MemoryPool>& memory_pool);
 
     Result<std::vector<std::unique_ptr<RecordBatch>>> SplitArrayByPartitionAndBucket(
@@ -69,7 +69,7 @@ class DataGenerator {
                               arrow::StructBuilder* struct_builder);
 
  private:
-    std::shared_ptr<TableSchema> table_schema_;
+    std::shared_ptr<TableSchemaImpl> table_schema_;
     std::shared_ptr<MemoryPool> memory_pool_;
 };
 

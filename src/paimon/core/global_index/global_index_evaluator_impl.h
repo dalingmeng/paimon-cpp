@@ -17,7 +17,7 @@
 #pragma once
 #include <functional>
 
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/global_index/global_index_evaluator.h"
 #include "paimon/global_index/global_index_reader.h"
 #include "paimon/predicate/compound_predicate.h"
@@ -28,7 +28,7 @@ class GlobalIndexEvaluatorImpl : public GlobalIndexEvaluator {
     using IndexReadersCreator =
         std::function<Result<std::vector<std::shared_ptr<GlobalIndexReader>>>(int32_t)>;
 
-    GlobalIndexEvaluatorImpl(const std::shared_ptr<TableSchema>& table_schema,
+    GlobalIndexEvaluatorImpl(const std::shared_ptr<TableSchemaImpl>& table_schema,
                              IndexReadersCreator create_index_readers)
         : table_schema_(table_schema), create_index_readers_(std::move(create_index_readers)) {}
 
@@ -40,7 +40,7 @@ class GlobalIndexEvaluatorImpl : public GlobalIndexEvaluator {
         const std::shared_ptr<CompoundPredicate>& compound_predicate);
 
  private:
-    std::shared_ptr<TableSchema> table_schema_;
+    std::shared_ptr<TableSchemaImpl> table_schema_;
     // create_index_readers_(field_id)
     IndexReadersCreator create_index_readers_;
     // [field_id, vector<reader>]

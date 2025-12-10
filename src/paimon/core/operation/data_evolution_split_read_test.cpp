@@ -27,7 +27,7 @@
 #include "paimon/core/manifest/file_source.h"
 #include "paimon/core/operation/internal_read_context.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/stats/simple_stats.h"
 #include "paimon/core/table/source/data_split_impl.h"
 #include "paimon/defs.h"
@@ -535,7 +535,7 @@ TEST_F(DataEvolutionSplitReadTest, TestComplexBlobBunchScenario2) {
     };
     ASSERT_OK_AND_ASSIGN(std::vector<std::shared_ptr<DataEvolutionSplitRead::FieldBunch>> bunch,
                          DataEvolutionSplitRead::SplitFieldBunches(
-                             batch, blob_field_to_field_id, /*has_row_ids_selection=*/false));
+                             batch, blob_field_to_field_id, /*has_row_ranges_selection=*/false));
 
     ASSERT_EQ(bunch.size(), 2);
     auto blob_bunch = std::dynamic_pointer_cast<DataEvolutionSplitRead::BlobBunch>(bunch[1]);
@@ -657,7 +657,7 @@ TEST_F(DataEvolutionSplitReadTest, TestComplexBlobBunchScenario3) {
     };
     ASSERT_OK_AND_ASSIGN(std::vector<std::shared_ptr<DataEvolutionSplitRead::FieldBunch>> bunch,
                          DataEvolutionSplitRead::SplitFieldBunches(
-                             batch, blob_field_to_field_id, /*has_row_ids_selection=*/false));
+                             batch, blob_field_to_field_id, /*has_row_ranges_selection=*/false));
 
     ASSERT_EQ(bunch.size(), 3);
     auto blob_bunch = std::dynamic_pointer_cast<DataEvolutionSplitRead::BlobBunch>(bunch[1]);

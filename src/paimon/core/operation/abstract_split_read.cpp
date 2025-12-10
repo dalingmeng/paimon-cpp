@@ -33,7 +33,7 @@
 #include "paimon/core/io/field_mapping_reader.h"
 #include "paimon/core/operation/internal_read_context.h"
 #include "paimon/core/partition/partition_info.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/table/source/data_split_impl.h"
 #include "paimon/core/utils/field_mapping.h"
 #include "paimon/format/file_format.h"
@@ -170,7 +170,7 @@ Result<std::unique_ptr<BatchReader>> AbstractSplitRead::CreateFieldMappingReader
     const FieldMappingBuilder* field_mapping_builder,
     const std::unordered_map<std::string, DeletionFile>& deletion_file_map,
     const std::shared_ptr<DataFilePathFactory>& data_file_path_factory) const {
-    std::shared_ptr<TableSchema> data_schema;
+    std::shared_ptr<TableSchemaImpl> data_schema;
     if (file_meta->schema_id == context_->GetTableSchema()->Id()) {
         data_schema = context_->GetTableSchema();
     } else {
@@ -221,7 +221,7 @@ Result<std::unique_ptr<BatchReader>> AbstractSplitRead::CreateFieldMappingReader
 }
 
 Result<std::vector<DataField>> AbstractSplitRead::ProjectFieldsForRowTrackingAndDataEvolution(
-    const std::shared_ptr<TableSchema>& data_schema,
+    const std::shared_ptr<TableSchemaImpl>& data_schema,
     const std::optional<std::vector<std::string>>& write_cols) {
     std::vector<DataField> projected_fields;
     const std::vector<std::string>& partition_keys = data_schema->PartitionKeys();

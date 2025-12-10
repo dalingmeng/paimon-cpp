@@ -31,7 +31,7 @@
 #include "paimon/core/options/merge_engine.h"
 #include "paimon/core/postpone/postpone_bucket_file_store_write.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/table/bucket_mode.h"
 #include "paimon/core/utils/field_mapping.h"
 #include "paimon/core/utils/fields_comparator.h"
@@ -68,10 +68,10 @@ Result<std::unique_ptr<FileStoreWrite>> FileStoreWrite::Create(std::unique_ptr<W
     std::string branch = ctx->GetBranch();
     auto schema_manager =
         std::make_shared<SchemaManager>(tmp_options.GetFileSystem(), ctx->GetRootPath(), branch);
-    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchema>> table_schema,
+    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchemaImpl>> table_schema,
                            schema_manager->Latest());
     if (table_schema == std::nullopt) {
-        return Status::Invalid(fmt::format("cannot found latest schema in branch {}", branch));
+        return Status::Invalid(fmt::format("cannot find latest schema in branch {}", branch));
     }
     const auto& schema = table_schema.value();
     auto opts = schema->Options();

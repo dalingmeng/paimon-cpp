@@ -60,7 +60,7 @@
 #include "paimon/core/operation/metrics/commit_metrics.h"
 #include "paimon/core/partition/partition_statistics.h"
 #include "paimon/core/schema/schema_manager.h"
-#include "paimon/core/schema/table_schema.h"
+#include "paimon/core/schema/table_schema_impl.h"
 #include "paimon/core/table/sink/commit_message_impl.h"
 #include "paimon/core/utils/file_store_path_factory.h"
 #include "paimon/core/utils/snapshot_manager.h"
@@ -80,7 +80,7 @@ FileStoreCommitImpl::FileStoreCommitImpl(
     const std::shared_ptr<FileStorePathFactory>& path_factory,
     std::unique_ptr<BinaryRowPartitionComputer> partition_computer,
     const std::shared_ptr<SnapshotManager>& snapshot_manager, bool ignore_empty_commit,
-    bool use_rest_catalog_commit, const std::shared_ptr<TableSchema>& table_schema,
+    bool use_rest_catalog_commit, const std::shared_ptr<TableSchemaImpl>& table_schema,
     const std::shared_ptr<ManifestFile>& manifest_file,
     const std::shared_ptr<ManifestList>& manifest_list,
     const std::shared_ptr<IndexManifestFile>& index_manifest_file,
@@ -615,7 +615,7 @@ Result<bool> FileStoreCommitImpl::TryCommitOnce(
     std::optional<std::string> statistics;
     int64_t changelog_record_count = 0;
     int64_t schema_id = 0;
-    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchema>> table_schema,
+    PAIMON_ASSIGN_OR_RAISE(std::optional<std::shared_ptr<TableSchemaImpl>> table_schema,
                            schema_manager_->Latest());
     if (table_schema) {
         schema_id = table_schema.value()->Id();
