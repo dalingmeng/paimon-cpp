@@ -15,13 +15,18 @@
  */
 #include "paimon/disk/io_manager.h"
 
+#include <mutex>
+
 #include "paimon/common/utils/path_util.h"
 #include "paimon/common/utils/uuid.h"
 
 namespace paimon {
 class IOManagerImpl : public IOManager {
  public:
-    explicit IOManagerImpl(const std::string& tmp_dir) : tmp_dir_(tmp_dir) {}
+    explicit IOManagerImpl(const std::string& tmp_dir) : tmp_dir_(tmp_dir) {
+        std::random_device rd;
+        random_.seed(rd());
+    }
 
     const std::string& GetTempDir() const override {
         return tmp_dir_;
@@ -35,9 +40,26 @@ class IOManagerImpl : public IOManager {
         return PathUtil::JoinPath(tmp_dir_, prefix + "-" + uuid + std::string(kSuffix));
     }
 
+    Result<std::shared_ptr<FileIOChannel::ID>> CreateChannel() override {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return std::make_shared<FileIOChannel::ID>(tmp_dir_, random_);
+    }
+
+    Result<std::shared_ptr<FileIOChannel::ID>> CreateChannel(const std::string& prefix) override {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return std::make_shared<FileIOChannel::ID>(tmp_dir_, prefix, random_);
+    }
+
+    Result<std::shared_ptr<FileIOChannel::Enumerator>> CreateChannelEnumerator() override {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return std::make_shared<FileIOChannel::Enumerator>(tmp_dir_, random_);
+    }
+
  private:
     static constexpr char kSuffix[] = ".channel";
     std::string tmp_dir_;
+    std::mutex mutex_;
+    std::mt19937 random_;
 };
 
 std::unique_ptr<IOManager> IOManager::Create(const std::string& tmp_dir) {

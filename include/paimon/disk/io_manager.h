@@ -20,6 +20,7 @@
 #include <memory>
 #include <string>
 
+#include "paimon/disk/file_io_channel.h"
 #include "paimon/result.h"
 #include "paimon/visibility.h"
 
@@ -34,5 +35,11 @@ class PAIMON_EXPORT IOManager {
     virtual const std::string& GetTempDir() const = 0;
 
     virtual Result<std::string> GenerateTempFilePath(const std::string& prefix) const = 0;
+
+    virtual Result<std::shared_ptr<FileIOChannel::ID>> CreateChannel() = 0;
+
+    virtual Result<std::shared_ptr<FileIOChannel::ID>> CreateChannel(const std::string& prefix) = 0;
+
+    virtual Result<std::shared_ptr<FileIOChannel::Enumerator>> CreateChannelEnumerator() = 0;
 };
 }  // namespace paimon
