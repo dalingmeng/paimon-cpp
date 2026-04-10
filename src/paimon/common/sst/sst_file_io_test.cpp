@@ -75,6 +75,7 @@ class SstFileIOTest : public ::testing::TestWithParam<SstFileParam> {
     std::shared_ptr<paimon::MemoryPool> pool_;
 
     MemorySlice::SliceComparator comparator_;
+    std::shared_ptr<CacheManager> cache_manager_ = std::make_shared<CacheManager>(1024 * 1024, 0.0);
 };
 
 TEST_P(SstFileIOTest, TestSimple) {
@@ -92,7 +93,7 @@ TEST_P(SstFileIOTest, TestSimple) {
     auto bf = BloomFilter::Create(30, 0.01);
     auto seg_for_bf = MemorySegment::AllocateHeapMemory(bf->ByteLength(), pool_.get());
     ASSERT_OK(bf->SetMemorySegment(seg_for_bf));
-    auto writer = std::make_shared<SstFileWriter>(out, pool_, bf, 50, factory);
+    auto writer = std::make_shared<SstFileWriter>(out, bf, 50, factory, pool_);
     std::set<int32_t> value_hash;
     // k1-k5
     for (size_t i = 1; i <= 5; i++) {
@@ -140,7 +141,8 @@ TEST_P(SstFileIOTest, TestSimple) {
 
     // test read
     ASSERT_OK_AND_ASSIGN(in, fs_->Open(index_path));
-    ASSERT_OK_AND_ASSIGN(auto reader, SstFileReader::Create(pool_, in, comparator_));
+    ASSERT_OK_AND_ASSIGN(auto reader,
+                         SstFileReader::Create(in, comparator_, cache_manager_, pool_));
 
     // not exist key
     std::string k0 = "k0";
@@ -171,11 +173,10 @@ TEST_P(SstFileIOTest, TestJavaCompatibility) {
     // key range [1_000_000, 2_000_000], value is equal to the key
     std::string file = GetDataDir() + "/sst/" + param.file_path;
     ASSERT_OK_AND_ASSIGN(std::shared_ptr<InputStream> in, fs_->Open(file));
-    auto block_cache =
-        std::make_shared<BlockCache>(file, in, pool_, std::make_unique<CacheManager>());
 
     // test read
-    ASSERT_OK_AND_ASSIGN(auto reader, SstFileReader::Create(pool_, in, comparator_));
+    ASSERT_OK_AND_ASSIGN(auto reader,
+                         SstFileReader::Create(in, comparator_, cache_manager_, pool_));
     // not exist key
     std::string k0 = "10000";
     ASSERT_FALSE(reader->Lookup(std::make_shared<Bytes>(k0, pool_.get())).value());
@@ -229,7 +230,7 @@ TEST_F(SstFileIOTest, TestIOException) {
         auto bf = BloomFilter::Create(30, 0.01);
         MemorySegment seg_for_bf = MemorySegment::AllocateHeapMemory(bf->ByteLength(), pool_.get());
         ASSERT_OK(bf->SetMemorySegment(seg_for_bf));
-        auto writer = std::make_shared<SstFileWriter>(out, pool_, bf, 50, factory);
+        auto writer = std::make_shared<SstFileWriter>(out, bf, 50, factory, pool_);
 
         bool write_failed = false;
         for (size_t j = 1; j <= 5; j++) {
@@ -265,7 +266,7 @@ TEST_F(SstFileIOTest, TestIOException) {
         CHECK_HOOK_STATUS(in_result.status(), i);
         std::shared_ptr<InputStream> in = std::move(in_result).value();
 
-        auto reader_result = SstFileReader::Create(pool_, in, comparator_);
+        auto reader_result = SstFileReader::Create(in, comparator_, cache_manager_, pool_);
         CHECK_HOOK_STATUS(reader_result.status(), i);
         std::shared_ptr<SstFileReader> reader = std::move(reader_result).value();
 

@@ -98,6 +98,8 @@ const char Options::COMPACT_OFFPEAK_END_HOUR[] = "compaction.offpeak.end.hour";
 const char Options::COMPACTION_OFFPEAK_RATIO[] = "compaction.offpeak-ratio";
 const char Options::LOOKUP_CACHE_BLOOM_FILTER_ENABLED[] = "lookup.cache.bloom.filter.enabled";
 const char Options::LOOKUP_CACHE_BLOOM_FILTER_FPP[] = "lookup.cache.bloom.filter.fpp";
+const char Options::LOOKUP_REMOTE_FILE_ENABLED[] = "lookup.remote-file.enabled";
+const char Options::LOOKUP_REMOTE_LEVEL_THRESHOLD[] = "lookup.remote-file.level-threshold";
 const char Options::LOOKUP_CACHE_SPILL_COMPRESSION[] = "lookup.cache-spill-compression";
 const char Options::SPILL_COMPRESSION_ZSTD_LEVEL[] = "spill-compression.zstd-level";
 const char Options::CACHE_PAGE_SIZE[] = "cache-page-size";
@@ -113,5 +115,7 @@ const char Options::COMPACTION_FORCE_UP_LEVEL_0[] = "compaction.force-up-level-0
 const char Options::LOOKUP_WAIT[] = "lookup-wait";
 const char Options::LOOKUP_COMPACT[] = "lookup-compact";
 const char Options::LOOKUP_COMPACT_MAX_INTERVAL[] = "lookup-compact.max-interval";
+const char Options::LOOKUP_CACHE_MAX_MEMORY_SIZE[] = "lookup.cache-max-memory-size";
+const char Options::LOOKUP_CACHE_HIGH_PRIO_POOL_RATIO[] = "lookup.cache.high-priority-pool-ratio";
 
 }  // namespace paimon

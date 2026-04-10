@@ -113,7 +113,7 @@ struct PAIMON_EXPORT Options {
     static const char BLOB_TARGET_FILE_SIZE[];
 
     /// "partition.default-name" - The default partition name in case the dynamic partition column
-    /// value is null/empty string.
+    /// value is null/empty string. Default is "__DEFAULT_PARTITION__".
     static const char PARTITION_DEFAULT_NAME[];
 
     /// "file.compression" - The default file compression is zstd. For faster read and write, it is
@@ -384,6 +384,13 @@ struct PAIMON_EXPORT Options {
     /// "lookup.cache.bloom.filter.fpp" - Define the default false positive probability for lookup
     /// cache bloom filters. Default value is 0.05.
     static const char LOOKUP_CACHE_BLOOM_FILTER_FPP[];
+    /// "lookup.remote-file.enabled" - Whether to enable the remote file for lookup.
+    /// Default value is false.
+    static const char LOOKUP_REMOTE_FILE_ENABLED[];
+    /// "lookup.remote-file.level-threshold" - Level threshold of lookup to generate remote lookup
+    /// files. Level files below this threshold will not generate remote lookup files.
+    /// Default value is INT32_MIN.
+    static const char LOOKUP_REMOTE_LEVEL_THRESHOLD[];
     /// "lookup.cache-spill-compression" - Spill compression for lookup cache, currently zstd, none,
     /// lz4 are supported. Default value is zstd.
     /// Noted that java paimon also supports lzo which paimon-cpp does not support for now.
@@ -402,6 +409,11 @@ struct PAIMON_EXPORT Options {
     /// you can add the conf like this: 'file.compression.per.level' = '0:lz4,1:zstd'.
     /// If a level is not configured, the default compression set by FILE_COMPRESSION will be used.
     static const char FILE_COMPRESSION_PER_LEVEL[];
+    /// "lookup.cache-max-memory-size" - Max memory size for lookup cache. Default value is 256 mb.
+    static const char LOOKUP_CACHE_MAX_MEMORY_SIZE[];
+    /// "lookup.cache.high-priority-pool-ratio" - The fraction of cache memory that is reserved for
+    /// high-priority data like index, filter. Default value is 0.25.
+    static const char LOOKUP_CACHE_HIGH_PRIO_POOL_RATIO[];
 };
 
 static constexpr int64_t BATCH_WRITE_COMMIT_IDENTIFIER = std::numeric_limits<int64_t>::max();

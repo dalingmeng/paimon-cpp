@@ -64,9 +64,9 @@ set(PAIMON_COMMON_SRCS
     common/io/data_output_stream.cpp
     common/io/memory_segment_output_stream.cpp
     common/io/offset_input_stream.cpp
-    common/io/cache/cache.cpp
     common/io/cache/cache_key.cpp
     common/io/cache/cache_manager.cpp
+    common/io/cache/lru_cache.cpp
     common/logging/logging.cpp
     common/lookup/sort/sort_lookup_store_factory.cpp
     common/lookup/lookup_store_factory.cpp
@@ -244,6 +244,7 @@ set(PAIMON_CORE_SRCS
     core/mergetree/write_buffer.cpp
     core/mergetree/levels.cpp
     core/mergetree/lookup_levels.cpp
+    core/mergetree/lookup/remote_lookup_file_manager.cpp
     core/migrate/file_meta_utils.cpp
     core/operation/data_evolution_file_store_scan.cpp
     core/operation/data_evolution_split_read.cpp
@@ -466,6 +467,7 @@ if(PAIMON_BUILD_TESTS)
                     common/utils/roaring_bitmap64_test.cpp
                     common/utils/range_helper_test.cpp
                     common/utils/read_ahead_cache_test.cpp
+                    common/io/cache/lru_cache_test.cpp
                     common/utils/byte_range_combiner_test.cpp
                     common/utils/scope_guard_test.cpp
                     common/utils/serialization_utils_test.cpp
@@ -495,6 +497,7 @@ if(PAIMON_BUILD_TESTS)
                     SOURCES
                     common/compression/block_compression_factory_test.cpp
                     common/sst/sst_file_io_test.cpp
+                    common/sst/block_cache_test.cpp
                     common/utils/crc32c_test.cpp
                     STATIC_LINK_LIBS
                     paimon_shared
@@ -594,6 +597,7 @@ if(PAIMON_BUILD_TESTS)
                     core/mergetree/compact/merge_tree_compact_manager_factory_test.cpp
                     core/mergetree/compact/merge_tree_compact_rewriter_test.cpp
                     core/mergetree/lookup/persist_processor_test.cpp
+                    core/mergetree/lookup/remote_lookup_file_manager_test.cpp
                     core/mergetree/drop_delete_reader_test.cpp
                     core/mergetree/merge_tree_writer_test.cpp
                     core/mergetree/write_buffer_test.cpp

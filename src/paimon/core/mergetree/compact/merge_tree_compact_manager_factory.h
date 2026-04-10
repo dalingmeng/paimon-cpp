@@ -20,14 +20,15 @@
 #include <memory>
 #include <string>
 
+#include "paimon/common/io/cache/cache_manager.h"
 #include "paimon/core/compact/cancellation_controller.h"
 #include "paimon/core/compact/compact_manager.h"
 #include "paimon/core/core_options.h"
 #include "paimon/core/mergetree/compact/compact_rewriter.h"
 #include "paimon/core/mergetree/compact/compact_strategy.h"
+#include "paimon/core/mergetree/lookup/remote_lookup_file_manager.h"
 #include "paimon/core/operation/metrics/compaction_metrics.h"
 #include "paimon/result.h"
-
 namespace arrow {
 class Schema;
 }
@@ -65,6 +66,7 @@ class MergeTreeCompactManagerFactory {
         const std::shared_ptr<arrow::Schema>& schema,
         const std::shared_ptr<SchemaManager>& schema_manager,
         const std::shared_ptr<IOManager>& io_manager,
+        const std::shared_ptr<CacheManager>& cache_manager,
         const std::shared_ptr<FileStorePathFactory>& file_store_path_factory,
         const std::string& root_path, const std::shared_ptr<MemoryPool>& pool)
         : options_(options),
@@ -76,6 +78,7 @@ class MergeTreeCompactManagerFactory {
           schema_(schema),
           schema_manager_(schema_manager),
           io_manager_(io_manager),
+          cache_manager_(cache_manager),
           file_store_path_factory_(file_store_path_factory),
           root_path_(root_path) {}
 
@@ -119,6 +122,19 @@ class MergeTreeCompactManagerFactory {
         const std::shared_ptr<FileStorePathFactoryCache>& path_factory_cache,
         const std::shared_ptr<CancellationController>& cancellation_controller) const;
 
+    template <typename T>
+    Result<std::unique_ptr<RemoteLookupFileManager<T>>> CreateRemoteLookupFileManager(
+        const BinaryRow& partition, int32_t bucket, LookupLevels<T>* lookup_levels) const {
+        if (options_.LookupRemoteFileEnabled()) {
+            PAIMON_ASSIGN_OR_RAISE(
+                std::shared_ptr<DataFilePathFactory> data_path_factory,
+                file_store_path_factory_->CreateDataFilePathFactory(partition, bucket));
+            return std::make_unique<RemoteLookupFileManager<T>>(
+                options_.GetLookupRemoteLevelThreshold(), data_path_factory,
+                options_.GetFileSystem(), pool_, lookup_levels);
+        }
+        return std::unique_ptr<RemoteLookupFileManager<T>>();
+    }
     CoreOptions options_;
     std::shared_ptr<MemoryPool> pool_;
     std::shared_ptr<FieldsComparator> key_comparator_;
@@ -128,6 +144,7 @@ class MergeTreeCompactManagerFactory {
     std::shared_ptr<arrow::Schema> schema_;
     std::shared_ptr<SchemaManager> schema_manager_;
     std::shared_ptr<IOManager> io_manager_;
+    std::shared_ptr<CacheManager> cache_manager_;
     std::shared_ptr<FileStorePathFactory> file_store_path_factory_;
     std::string root_path_;
 };

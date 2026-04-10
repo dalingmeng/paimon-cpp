@@ -420,10 +420,14 @@ struct CoreOptions::Impl {
     int32_t compact_off_peak_ratio = 0;
     bool lookup_cache_bloom_filter = true;
     double lookup_cache_bloom_filter_fpp = 0.05;
+    bool lookup_remote_file_enabled = false;
+    int32_t lookup_remote_level_threshold = INT32_MIN;
     CompressOptions lookup_compress_options{"zstd", 1};
     int64_t cache_page_size = 64 * 1024;  // 64KB
     std::map<int32_t, std::shared_ptr<FileFormat>> file_format_per_level;
     std::map<int32_t, std::string> file_compression_per_level;
+    int64_t lookup_cache_max_memory = 256 * 1024 * 1024;
+    double lookup_cache_high_prio_pool_ratio = 0.25;
 };
 
 // Parse configurations from a map and return a populated CoreOptions object
@@ -674,6 +678,14 @@ Result<CoreOptions> CoreOptions::FromMap(
     PAIMON_RETURN_NOT_OK(parser.Parse<double>(Options::LOOKUP_CACHE_BLOOM_FILTER_FPP,
                                               &impl->lookup_cache_bloom_filter_fpp));
 
+    // Parse lookup.remote-file.enabled
+    PAIMON_RETURN_NOT_OK(
+        parser.Parse<bool>(Options::LOOKUP_REMOTE_FILE_ENABLED, &impl->lookup_remote_file_enabled));
+
+    // Parse lookup.remote-file.level-threshold
+    PAIMON_RETURN_NOT_OK(parser.Parse<int32_t>(Options::LOOKUP_REMOTE_LEVEL_THRESHOLD,
+                                               &impl->lookup_remote_level_threshold));
+
     // Parse lookup.cache-spill-compression
     std::string lookup_compress_options_compression_str;
     PAIMON_RETURN_NOT_OK(parser.ParseString(Options::LOOKUP_CACHE_SPILL_COMPRESSION,
@@ -709,6 +721,18 @@ Result<CoreOptions> CoreOptions::FromMap(
     PAIMON_RETURN_NOT_OK(parser.ParseLookupCompactMode(&impl->lookup_compact_mode));
     PAIMON_RETURN_NOT_OK(
         parser.Parse(Options::LOOKUP_COMPACT_MAX_INTERVAL, &impl->lookup_compact_max_interval));
+
+    // parse lookup cache
+    PAIMON_RETURN_NOT_OK(parser.ParseMemorySize(Options::LOOKUP_CACHE_MAX_MEMORY_SIZE,
+                                                &impl->lookup_cache_max_memory));
+    PAIMON_RETURN_NOT_OK(parser.Parse<double>(Options::LOOKUP_CACHE_HIGH_PRIO_POOL_RATIO,
+                                              &impl->lookup_cache_high_prio_pool_ratio));
+    if (impl->lookup_cache_high_prio_pool_ratio < 0.0 ||
+        impl->lookup_cache_high_prio_pool_ratio >= 1.0) {
+        return Status::Invalid(fmt::format(
+            "The high priority pool ratio should in the range [0, 1), while input is {}",
+            impl->lookup_cache_high_prio_pool_ratio));
+    }
     return options;
 }
 
@@ -1173,8 +1197,24 @@ const CompressOptions& CoreOptions::GetLookupCompressOptions() const {
     return impl_->lookup_compress_options;
 }
 
+bool CoreOptions::LookupRemoteFileEnabled() const {
+    return impl_->lookup_remote_file_enabled;
+}
+
+int32_t CoreOptions::GetLookupRemoteLevelThreshold() const {
+    return impl_->lookup_remote_level_threshold;
+}
+
 int32_t CoreOptions::GetCachePageSize() const {
     return static_cast<int32_t>(impl_->cache_page_size);
+}
+
+int64_t CoreOptions::GetLookupCacheMaxMemory() const {
+    return impl_->lookup_cache_max_memory;
+}
+
+double CoreOptions::GetLookupCacheHighPrioPoolRatio() const {
+    return impl_->lookup_cache_high_prio_pool_ratio;
 }
 
 }  // namespace paimon
