@@ -1,0 +1,156 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="classpaimon_1_1_file_i_o_channel_1_1_i_d" kind="class" language="C++" prot="public">
+    <compoundname>paimon::FileIOChannel::ID</compoundname>
+    <includes refid="file__io__channel_8h" local="no">/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h</includes>
+    <innerclass refid="structpaimon_1_1_file_i_o_channel_1_1_i_d_1_1_hash" prot="public">paimon::FileIOChannel::ID::Hash</innerclass>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classpaimon_1_1_file_i_o_channel_1_1_i_d_1af1d491bb3729782ca35e91fdc898c4e3" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string paimon::FileIOChannel::ID::path_</definition>
+        <argsstring></argsstring>
+        <name>path_</name>
+        <qualifiedname>paimon::FileIOChannel::ID::path_</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="79" column="21" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classpaimon_1_1_file_i_o_channel_1_1_i_d_1aa09c42719c70391b99a9ceacb55ff3cb" prot="public" static="no" const="no" explicit="yes" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>paimon::FileIOChannel::ID::ID</definition>
+        <argsstring>(std::string path)</argsstring>
+        <name>ID</name>
+        <qualifiedname>paimon::FileIOChannel::ID::ID</qualifiedname>
+        <param>
+          <type>std::string</type>
+          <declname>path</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="51" column="18" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="51" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="classpaimon_1_1_file_i_o_channel_1_1_i_d_1a3d316b45a57ec4da79c6876aee33710d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>paimon::FileIOChannel::ID::ID</definition>
+        <argsstring>(const std::string &amp;base_path, std::mt19937 &amp;random)</argsstring>
+        <name>ID</name>
+        <qualifiedname>paimon::FileIOChannel::ID::ID</qualifiedname>
+        <param>
+          <type><ref refid="memory__pool_8h_1a147ba4ba34a215b3a4f3a95c1ee11704" kindref="member">const</ref> std::string &amp;</type>
+          <declname>base_path</declname>
+        </param>
+        <param>
+          <type>std::mt19937 &amp;</type>
+          <declname>random</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="53" column="9" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="53" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="classpaimon_1_1_file_i_o_channel_1_1_i_d_1ad18f17952b225e3c1da32eac64637ca5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>paimon::FileIOChannel::ID::ID</definition>
+        <argsstring>(const std::string &amp;base_path, const std::string &amp;prefix, std::mt19937 &amp;random)</argsstring>
+        <name>ID</name>
+        <qualifiedname>paimon::FileIOChannel::ID::ID</qualifiedname>
+        <param>
+          <type><ref refid="memory__pool_8h_1a147ba4ba34a215b3a4f3a95c1ee11704" kindref="member">const</ref> std::string &amp;</type>
+          <declname>base_path</declname>
+        </param>
+        <param>
+          <type><ref refid="memory__pool_8h_1a147ba4ba34a215b3a4f3a95c1ee11704" kindref="member">const</ref> std::string &amp;</type>
+          <declname>prefix</declname>
+        </param>
+        <param>
+          <type>std::mt19937 &amp;</type>
+          <declname>random</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="56" column="9" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="56" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="classpaimon_1_1_file_i_o_channel_1_1_i_d_1a57810790927dd3aedacbefd5de78b39f" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="memory__pool_8h_1a147ba4ba34a215b3a4f3a95c1ee11704" kindref="member">const</ref> std::string &amp;</type>
+        <definition>const std::string &amp; paimon::FileIOChannel::ID::GetPath</definition>
+        <argsstring>() const</argsstring>
+        <name>GetPath</name>
+        <qualifiedname>paimon::FileIOChannel::ID::GetPath</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="60" column="27" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="60" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classpaimon_1_1_file_i_o_channel_1_1_i_d_1ac4e7ad5d8fd82755044756568b638f85" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="memory__pool_8h_1a147ba4ba34a215b3a4f3a95c1ee11704" kindref="member">bool</ref></type>
+        <definition>bool paimon::FileIOChannel::ID::operator==</definition>
+        <argsstring>(const ID &amp;other) const</argsstring>
+        <name>operator==</name>
+        <qualifiedname>paimon::FileIOChannel::ID::operator==</qualifiedname>
+        <param>
+          <type><ref refid="memory__pool_8h_1a147ba4ba34a215b3a4f3a95c1ee11704" kindref="member">const</ref> <ref refid="classpaimon_1_1_file_i_o_channel_1_1_i_d" kindref="compound">ID</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="64" column="14" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="64" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="classpaimon_1_1_file_i_o_channel_1_1_i_d_1abef5f0f2d5e82dd6c86602b6cb0ccb43" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="memory__pool_8h_1a147ba4ba34a215b3a4f3a95c1ee11704" kindref="member">bool</ref></type>
+        <definition>bool paimon::FileIOChannel::ID::operator!=</definition>
+        <argsstring>(const ID &amp;other) const</argsstring>
+        <name>operator!=</name>
+        <qualifiedname>paimon::FileIOChannel::ID::operator!=</qualifiedname>
+        <param>
+          <type><ref refid="memory__pool_8h_1a147ba4ba34a215b3a4f3a95c1ee11704" kindref="member">const</ref> <ref refid="classpaimon_1_1_file_i_o_channel_1_1_i_d" kindref="compound">ID</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="68" column="14" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="68" bodyend="70"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="49" column="5" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="49" bodyend="80"/>
+    <listofallmembers>
+      <member refid="classpaimon_1_1_file_i_o_channel_1_1_i_d_1a57810790927dd3aedacbefd5de78b39f" prot="public" virt="non-virtual"><scope>paimon::FileIOChannel::ID</scope><name>GetPath</name></member>
+      <member refid="classpaimon_1_1_file_i_o_channel_1_1_i_d_1aa09c42719c70391b99a9ceacb55ff3cb" prot="public" virt="non-virtual"><scope>paimon::FileIOChannel::ID</scope><name>ID</name></member>
+      <member refid="classpaimon_1_1_file_i_o_channel_1_1_i_d_1a3d316b45a57ec4da79c6876aee33710d" prot="public" virt="non-virtual"><scope>paimon::FileIOChannel::ID</scope><name>ID</name></member>
+      <member refid="classpaimon_1_1_file_i_o_channel_1_1_i_d_1ad18f17952b225e3c1da32eac64637ca5" prot="public" virt="non-virtual"><scope>paimon::FileIOChannel::ID</scope><name>ID</name></member>
+      <member refid="classpaimon_1_1_file_i_o_channel_1_1_i_d_1abef5f0f2d5e82dd6c86602b6cb0ccb43" prot="public" virt="non-virtual"><scope>paimon::FileIOChannel::ID</scope><name>operator!=</name></member>
+      <member refid="classpaimon_1_1_file_i_o_channel_1_1_i_d_1ac4e7ad5d8fd82755044756568b638f85" prot="public" virt="non-virtual"><scope>paimon::FileIOChannel::ID</scope><name>operator==</name></member>
+      <member refid="classpaimon_1_1_file_i_o_channel_1_1_i_d_1af1d491bb3729782ca35e91fdc898c4e3" prot="private" virt="non-virtual"><scope>paimon::FileIOChannel::ID</scope><name>path_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

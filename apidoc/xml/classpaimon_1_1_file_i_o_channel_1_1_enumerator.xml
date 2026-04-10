@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="classpaimon_1_1_file_i_o_channel_1_1_enumerator" kind="class" language="C++" prot="public">
+    <compoundname>paimon::FileIOChannel::Enumerator</compoundname>
+    <includes refid="file__io__channel_8h" local="no">/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h</includes>
+    <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classpaimon_1_1_file_i_o_channel_1_1_enumerator_1ae9a61ed5bdf9c15c68c041bab8f2cf82" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string paimon::FileIOChannel::Enumerator::path_</definition>
+        <argsstring></argsstring>
+        <name>path_</name>
+        <qualifiedname>paimon::FileIOChannel::Enumerator::path_</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="96" column="21" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classpaimon_1_1_file_i_o_channel_1_1_enumerator_1abe71561eed40cd266a8536af22dc5297" prot="private" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string paimon::FileIOChannel::Enumerator::name_prefix_</definition>
+        <argsstring></argsstring>
+        <name>name_prefix_</name>
+        <qualifiedname>paimon::FileIOChannel::Enumerator::name_prefix_</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="97" column="21" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classpaimon_1_1_file_i_o_channel_1_1_enumerator_1a77b6fb092ee923bf1f020271b76314cf" prot="private" static="no" mutable="no">
+        <type><ref refid="memory__pool_8h_1a147ba4ba34a215b3a4f3a95c1ee11704" kindref="member">uint64_t</ref></type>
+        <definition>uint64_t paimon::FileIOChannel::Enumerator::local_counter_</definition>
+        <argsstring></argsstring>
+        <name>local_counter_</name>
+        <qualifiedname>paimon::FileIOChannel::Enumerator::local_counter_</qualifiedname>
+        <initializer>{0}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="98" column="18" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="98" bodyend="98"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="classpaimon_1_1_file_i_o_channel_1_1_enumerator_1a261a0cb28b5004725c9eda24173c67d8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>paimon::FileIOChannel::Enumerator::Enumerator</definition>
+        <argsstring>(std::string base_path, std::mt19937 &amp;random)</argsstring>
+        <name>Enumerator</name>
+        <qualifiedname>paimon::FileIOChannel::Enumerator::Enumerator</qualifiedname>
+        <param>
+          <type>std::string</type>
+          <declname>base_path</declname>
+        </param>
+        <param>
+          <type>std::mt19937 &amp;</type>
+          <declname>random</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="84" column="9" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="84" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="classpaimon_1_1_file_i_o_channel_1_1_enumerator_1a5d25a0783204f496086bf6838bbfabe9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::shared_ptr&lt; <ref refid="classpaimon_1_1_file_i_o_channel_1_1_i_d" kindref="compound">ID</ref> &gt;</type>
+        <definition>std::shared_ptr&lt; ID &gt; paimon::FileIOChannel::Enumerator::Next</definition>
+        <argsstring>()</argsstring>
+        <name>Next</name>
+        <qualifiedname>paimon::FileIOChannel::Enumerator::Next</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="86" column="25" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="86" bodyend="93"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="82" column="5" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="82" bodyend="99"/>
+    <listofallmembers>
+      <member refid="classpaimon_1_1_file_i_o_channel_1_1_enumerator_1a261a0cb28b5004725c9eda24173c67d8" prot="public" virt="non-virtual"><scope>paimon::FileIOChannel::Enumerator</scope><name>Enumerator</name></member>
+      <member refid="classpaimon_1_1_file_i_o_channel_1_1_enumerator_1a77b6fb092ee923bf1f020271b76314cf" prot="private" virt="non-virtual"><scope>paimon::FileIOChannel::Enumerator</scope><name>local_counter_</name></member>
+      <member refid="classpaimon_1_1_file_i_o_channel_1_1_enumerator_1abe71561eed40cd266a8536af22dc5297" prot="private" virt="non-virtual"><scope>paimon::FileIOChannel::Enumerator</scope><name>name_prefix_</name></member>
+      <member refid="classpaimon_1_1_file_i_o_channel_1_1_enumerator_1a5d25a0783204f496086bf6838bbfabe9" prot="public" virt="non-virtual"><scope>paimon::FileIOChannel::Enumerator</scope><name>Next</name></member>
+      <member refid="classpaimon_1_1_file_i_o_channel_1_1_enumerator_1ae9a61ed5bdf9c15c68c041bab8f2cf82" prot="private" virt="non-virtual"><scope>paimon::FileIOChannel::Enumerator</scope><name>path_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

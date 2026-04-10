@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="classpaimon_1_1_file_i_o_channel" kind="class" language="C++" prot="public">
+    <compoundname>paimon::FileIOChannel</compoundname>
+    <includes refid="file__io__channel_8h" local="no">/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h</includes>
+    <innerclass refid="classpaimon_1_1_file_i_o_channel_1_1_enumerator" prot="public">paimon::FileIOChannel::Enumerator</innerclass>
+    <innerclass refid="classpaimon_1_1_file_i_o_channel_1_1_i_d" prot="public">paimon::FileIOChannel::ID</innerclass>
+    <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="classpaimon_1_1_file_i_o_channel_1a7f373d5d9a7ff6f763e74dfa7098b340" prot="private" static="yes" constexpr="yes" mutable="no">
+        <type><ref refid="memory__pool_8h_1a147ba4ba34a215b3a4f3a95c1ee11704" kindref="member">constexpr</ref> <ref refid="memory__pool_8h_1a147ba4ba34a215b3a4f3a95c1ee11704" kindref="member">int</ref></type>
+        <definition>constexpr int paimon::FileIOChannel::RANDOM_BYTES_LENGTH</definition>
+        <argsstring></argsstring>
+        <name>RANDOM_BYTES_LENGTH</name>
+        <qualifiedname>paimon::FileIOChannel::RANDOM_BYTES_LENGTH</qualifiedname>
+        <initializer>= 16</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="37" column="26" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="private-static-func">
+      <memberdef kind="function" id="classpaimon_1_1_file_i_o_channel_1a72438dc7797617f8941608972e77b2e5" prot="private" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string</type>
+        <definition>static std::string paimon::FileIOChannel::GenerateRandomHexString</definition>
+        <argsstring>(std::mt19937 &amp;random)</argsstring>
+        <name>GenerateRandomHexString</name>
+        <qualifiedname>paimon::FileIOChannel::GenerateRandomHexString</qualifiedname>
+        <param>
+          <type>std::mt19937 &amp;</type>
+          <declname>random</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="38" column="24" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="38" bodyend="46"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>A <ref refid="classpaimon_1_1_file_i_o_channel" kindref="compound">FileIOChannel</ref> represents a collection of files that belong logically to the same resource. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>An example is a collection of files that contain sorted runs of data from the same stream, that will later on be merged together. </para>
+    </detaileddescription>
+    <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="35" column="1" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="35" bodyend="100"/>
+    <listofallmembers>
+      <member refid="classpaimon_1_1_file_i_o_channel_1a72438dc7797617f8941608972e77b2e5" prot="private" virt="non-virtual"><scope>paimon::FileIOChannel</scope><name>GenerateRandomHexString</name></member>
+      <member refid="classpaimon_1_1_file_i_o_channel_1a7f373d5d9a7ff6f763e74dfa7098b340" prot="private" virt="non-virtual"><scope>paimon::FileIOChannel</scope><name>RANDOM_BYTES_LENGTH</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

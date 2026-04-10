@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="structpaimon_1_1_file_i_o_channel_1_1_i_d_1_1_hash" kind="struct" language="C++" prot="public">
+    <compoundname>paimon::FileIOChannel::ID::Hash</compoundname>
+    <includes refid="file__io__channel_8h" local="no">/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h</includes>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="structpaimon_1_1_file_i_o_channel_1_1_i_d_1_1_hash_1abac806ea9a3f77755fda10f3925f8cb3" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="memory__pool_8h_1a147ba4ba34a215b3a4f3a95c1ee11704" kindref="member">size_t</ref></type>
+        <definition>size_t paimon::FileIOChannel::ID::Hash::operator()</definition>
+        <argsstring>(const ID &amp;id) const</argsstring>
+        <name>operator()</name>
+        <qualifiedname>paimon::FileIOChannel::ID::Hash::operator()</qualifiedname>
+        <param>
+          <type><ref refid="memory__pool_8h_1a147ba4ba34a215b3a4f3a95c1ee11704" kindref="member">const</ref> <ref refid="classpaimon_1_1_file_i_o_channel_1_1_i_d" kindref="compound">ID</ref> &amp;</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="73" column="20" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="73" bodyend="75"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" line="72" column="9" bodyfile="/home/runner/work/paimon-cpp/paimon-cpp/include/paimon/disk/file_io_channel.h" bodystart="72" bodyend="76"/>
+    <listofallmembers>
+      <member refid="structpaimon_1_1_file_i_o_channel_1_1_i_d_1_1_hash_1abac806ea9a3f77755fda10f3925f8cb3" prot="public" virt="non-virtual"><scope>paimon::FileIOChannel::ID::Hash</scope><name>operator()</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
