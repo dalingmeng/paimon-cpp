@@ -35,7 +35,6 @@
 #include "paimon/catalog/identifier.h"
 #include "paimon/common/utils/path_util.h"
 #include "paimon/core/core_options.h"
-#include "paimon/disk/io_manager.h"
 #include "paimon/file_store_write.h"
 #include "paimon/record_batch.h"
 #include "paimon/status.h"
@@ -66,8 +65,7 @@ class KeyValueFileStoreWriteTest : public ::testing::Test {
 
         WriteContextBuilder context_builder(PathUtil::JoinPath(dir->Str(), "foo.db/bar"), "test");
         if (with_io_manager) {
-            auto io_manager = IOManager::Create(dir->Str());
-            context_builder.WithIOManager(std::shared_ptr<IOManager>(std::move(io_manager)));
+            context_builder.WithIOTempDirectory(dir->Str());
         }
 
         PAIMON_ASSIGN_OR_RAISE(std::unique_ptr<WriteContext> write_context,
