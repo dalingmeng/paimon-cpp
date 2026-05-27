@@ -63,6 +63,13 @@ class PAIMON_EXPORT TableRead {
     virtual Result<std::unique_ptr<BatchReader>> CreateReader(
         const std::shared_ptr<Split>& split) = 0;
 
+    /// Count the number of rows in the given split.
+    /// PK table uses optimized CountSplitRead; append-only table falls back to batch iteration.
+    virtual Result<int64_t> CountRows(const std::shared_ptr<Split>& split);
+
+    /// Count the number of rows across multiple splits.
+    virtual Result<int64_t> CountRows(const std::vector<std::shared_ptr<Split>>& splits);
+
  protected:
     explicit TableRead(const std::shared_ptr<MemoryPool>& memory_pool);
 

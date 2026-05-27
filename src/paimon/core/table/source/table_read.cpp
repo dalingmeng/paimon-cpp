@@ -178,4 +178,29 @@ Result<std::unique_ptr<BatchReader>> TableRead::CreateReader(
     return std::make_unique<ConcatBatchReader>(std::move(batch_readers), pool_);
 }
 
+Result<int64_t> TableRead::CountRows(const std::shared_ptr<Split>& split) {
+    // Default fallback: create reader and iterate batches
+    PAIMON_ASSIGN_OR_RAISE(std::unique_ptr<BatchReader> reader, CreateReader(split));
+    int64_t count = 0;
+    while (true) {
+        PAIMON_ASSIGN_OR_RAISE(BatchReader::ReadBatch batch, reader->NextBatch());
+        if (BatchReader::IsEofBatch(batch)) {
+            break;
+        }
+        auto& [c_array, c_schema] = batch;
+        count += c_array->length;
+    }
+    reader->Close();
+    return count;
+}
+
+Result<int64_t> TableRead::CountRows(const std::vector<std::shared_ptr<Split>>& splits) {
+    int64_t total = 0;
+    for (const auto& split : splits) {
+        PAIMON_ASSIGN_OR_RAISE(int64_t split_count, CountRows(split));
+        total += split_count;
+    }
+    return total;
+}
+
 }  // namespace paimon
